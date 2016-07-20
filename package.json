@@ -1,9 +1,12 @@
 {
   "name": "egg-logrotater",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "logrotater for egg",
   "eggPlugin": {
-    "name": "logrotater"
+    "name": "logrotater",
+    "dep": [
+      "schedule"
+    ]
   },
   "keywords": [
     "egg",
@@ -14,6 +17,12 @@
     "moment": "^2.14.1",
     "mz": "^2.4.0"
   },
+  "files": [
+    "agent.js",
+    "app",
+    "config",
+    "app.js"
+  ],
   "devDependencies": {
     "egg-ci": "1",
     "egg-bin": "1",
