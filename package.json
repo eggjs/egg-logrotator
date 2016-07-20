@@ -1,6 +1,6 @@
 {
   "name": "egg-logrotater",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "logrotater for egg",
   "eggPlugin": {
     "name": "logrotater"
@@ -9,17 +9,23 @@
     "egg",
     "plugin"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "co": "^4.6.0",
+    "moment": "^2.14.1",
+    "mz": "^2.4.0"
+  },
   "devDependencies": {
     "egg-ci": "1",
     "egg-bin": "1",
-    "egg": "1",
-    "egg-mock": "1",
+    "egg": "0.0.3",
+    "egg-mock": "0.0.1",
     "autod": "2",
     "eslint": "3",
     "eslint-config-egg": "3",
     "should": "8",
-    "supertest": "1"
+    "supertest": "1",
+    "glob": "6",
+    "pedding": "1"
   },
   "engines": {
     "node": ">=4.0.0"

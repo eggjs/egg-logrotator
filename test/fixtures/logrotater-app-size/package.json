@@ -1,0 +1,6 @@
+{
+  "name": "logrotater",
+  "dependencies": {
+  },
+  "private":true
+}
