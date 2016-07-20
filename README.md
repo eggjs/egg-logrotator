@@ -43,7 +43,7 @@ exports.logrotater = true;
 // if any files need rotate by file size, config here
 exports.logrotater = {
   filesRotateBySize: [],           // Array for files path which need rotate.
-  maxFileSize: 60 * 1024 * 1024,   // Max file size will rotate
+  maxFileSize: 60 * 1024 * 1024,   // Max file size to judge if any file need rotate
   maxFiles: 10,                    // pieces rotate by size
   rotateDuration: 60000,           // time interval to judge if any file need rotate
 };
