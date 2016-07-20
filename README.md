@@ -20,9 +20,7 @@
 [download-image]: https://img.shields.io/npm/dm/egg-logrotater.svg?style=flat-square
 [download-url]: https://npmjs.org/package/egg-logrotater
 
-<!--
-Description here.
--->
+Log rotate plugin for egg, default rotate log files under `config.logger.rotateLogDirs`.Run by [egg-schedule](https://github.com/eggjs/egg-schedule)
 
 ## Install
 
@@ -32,9 +30,24 @@ $ npm i egg-logrotater
 
 ## Usage
 
-<!--
-Usage, configuration and example here.
--->
+
+- `plugin.js`
+
+```js
+exports.logrotater = true;
+```
+
+- `config.js`
+
+```js
+// if any files need rotate by file size, config here
+exports.logrotater = {
+  filesRotateBySize: [],           // Array for files path which need rotate.
+  maxFileSize: 60 * 1024 * 1024,   // Max file size will rotate
+  maxFiles: 10,                    // pieces rotate by size
+  rotateDuration: 60000,           // time interval to judge if any file need rotate
+};
+```
 
 ## Questions & Suggestions
 
