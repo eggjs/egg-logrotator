@@ -142,7 +142,7 @@ describe('test/logrotater.test.js', () => {
   describe('logrotater size', () => {
     let mockfile;
     let app;
-    beforeEach(() => {
+    before(() => {
       app = mm.app({
         baseDir: 'logrotater-app-size',
       });
@@ -150,7 +150,7 @@ describe('test/logrotater.test.js', () => {
       return app.ready();
     });
 
-    afterEach(() => app.close());
+    after(() => app.close());
 
     it('should rotate by size', function* () {
       fs.writeFileSync(mockfile, 'mock log text');
@@ -177,6 +177,8 @@ describe('test/logrotater.test.js', () => {
       fs.writeFileSync(mockfile, 'mock log text');
       yield app.runSchedule(schedule);
       yield sleep(100);
+      const files = glob.sync(path.join(app.config.logger.dir, '*.log*'));
+      console.log(files);
       fs.existsSync(`${mockfile}.1`).should.equal(true);
       fs.existsSync(`${mockfile}.2`).should.equal(true);
       fs.existsSync(`${mockfile}.3`).should.equal(false);

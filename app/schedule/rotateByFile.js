@@ -27,13 +27,14 @@ module.exports = app => {
 
     try {
       yield rotateLogDirs.map(logdir => renameLogfiles(logdir));
-      // tell master send reload logger message
-      logger.info('[egg-logrotater] broadcast log-reload to workers');
-      messenger.sendToApp('log-reload');
-      messenger.sendToAgent('log-reload');
     } catch (err) {
       logger.error(err);
     }
+
+    // tell every one to reload logger
+    logger.info('[egg-logrotater] broadcast log-reload to workers');
+    messenger.sendToApp('log-reload');
+    messenger.sendToAgent('log-reload');
   };
 
   // rename xxx.log => xxx.log.YYYY-MM-DD
