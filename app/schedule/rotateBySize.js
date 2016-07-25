@@ -2,8 +2,7 @@
 
 const fs = require('mz/fs');
 
-module.exports = function(app) {
-
+module.exports = app => {
   const exports = {};
 
   const logger = app.coreLogger;
@@ -16,11 +15,10 @@ module.exports = function(app) {
   exports.schedule = {
     interval: appLogrotatorConfig.rotateDuration,
     type: 'worker',
-    disable: filesRotateBySize.length === 0, // 没配置则关闭
+    disable: filesRotateBySize.length === 0,
   };
 
   exports.task = function* checkFileSize() {
-
     let needSendMessage = false;
 
     yield filesRotateBySize.map(logfile => function* () {
@@ -40,8 +38,6 @@ module.exports = function(app) {
       messenger.sendToApp('log-reload');
       messenger.sendToAgent('log-reload');
     }
-
-
   };
 
 

@@ -24,17 +24,17 @@
     "app.js"
   ],
   "devDependencies": {
-    "egg-ci": "1",
-    "egg-bin": "1",
-    "egg": "0.0.5",
-    "egg-mock": "0.0.2",
     "autod": "2",
+    "egg": "*",
+    "egg-bin": "1",
+    "egg-ci": "1",
+    "egg-mock": "*",
     "eslint": "3",
     "eslint-config-egg": "3",
-    "should": "8",
-    "supertest": "1",
     "glob": "6",
-    "pedding": "1"
+    "pedding": "1",
+    "should": "8",
+    "supertest": "1"
   },
   "engines": {
     "node": ">=4.0.0"
@@ -43,7 +43,7 @@
     "test": "npm run lint && npm run test-local",
     "test-local": "egg-bin test",
     "cov": "egg-bin cov",
-    "lint": "eslint --ext js . --fix",
+    "lint": "eslint --ext js --fix test app config *.js",
     "ci": "npm run lint && npm run cov",
     "autod": "autod"
   },

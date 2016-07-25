@@ -1,7 +1,7 @@
 'use strict';
 
-module.exports = function(app) {
-  app.get('/', function *(){
+module.exports = app => {
+  app.get('/', function* () {
     this.body = 123;
   });
 };
