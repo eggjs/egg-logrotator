@@ -140,21 +140,20 @@ describe('test/logrotater.test.js', () => {
   });
 
   describe('logrotater size', () => {
-    const mockfile = path.join(__dirname, 'fixtures/logrotater-app-size/logs/logrotater/egg-web.log');
-    const mocklogTxt = fs.readFileSync(path.join(__dirname, 'fixtures/logrotater-app-size/mocklog.txt'));
-
+    let mockfile;
     let app;
     beforeEach(() => {
-      mm.env('unittest');
       app = mm.app({
         baseDir: 'logrotater-app-size',
       });
+      mockfile = path.join(app.config.logger.dir, 'egg-web.log');
       return app.ready();
     });
 
     afterEach(() => app.close());
 
     it('should rotate by size', function* () {
+      fs.writeFileSync(mockfile, 'mock log text');
       const schedule = path.join(__dirname, '../app/schedule/rotateBySize');
       yield app.runSchedule(schedule);
       yield sleep(100);
@@ -162,19 +161,20 @@ describe('test/logrotater.test.js', () => {
     });
 
     it('should keep maxFiles file only', function* () {
+      fs.writeFileSync(mockfile, 'mock log text');
       // rotate first
       const schedule = path.join(__dirname, '../app/schedule/rotateBySize');
       yield app.runSchedule(schedule);
       yield sleep(100);
 
       // files second
-      fs.writeFileSync(mockfile, mocklogTxt);
+      fs.writeFileSync(mockfile, 'mock log text');
       yield app.runSchedule(schedule);
 
       yield sleep(100);
 
       // files third
-      fs.writeFileSync(mockfile, mocklogTxt);
+      fs.writeFileSync(mockfile, 'mock log text');
       yield app.runSchedule(schedule);
       yield sleep(100);
       fs.existsSync(`${mockfile}.1`).should.equal(true);
