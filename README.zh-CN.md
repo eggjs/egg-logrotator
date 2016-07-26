@@ -20,16 +20,9 @@
 [download-image]: https://img.shields.io/npm/dm/egg-logrotater.svg?style=flat-square
 [download-url]: https://npmjs.org/package/egg-logrotater
 
-Log rotate plugin for egg, default rotate log files under `config.logger.rotateLogDirs`.Run by [egg-schedule](https://github.com/eggjs/egg-schedule)
+egg 的日志切割插件，默认会按照时间切割 `config.logger.rotateLogDirs` 目录下的日志文件。
 
-## Install
-
-```bash
-$ npm i egg-logrotater
-```
-
-## Usage
-
+## 配置
 
 - `plugin.js`
 
@@ -40,13 +33,13 @@ exports.logrotater = true;
 - `config.default.js`
 
 ```js
-// if any files need rotate by file size, config here
+// 如果有需要按照文件大小切割的日志，在这里配置
 exports.logrotater = {
-  filesRotateBySize: [],           // Array for files path which need rotate.
-  maxFileSize: 50 * 1024 * 1024,   // Max file size to judge if any file need rotate
-  maxFiles: 10,                    // pieces rotate by size
-  rotateDuration: 60000,           // time interval to judge if any file need rotate
-  maxDays: 31,                     // keep max days log files, default is `31`. Set `0` to keep all logs
+  filesRotateBySize: [],           // 需要按大小切割的文件，其他日志文件仍按照通常方式切割
+  maxFileSize: 50 * 1024 * 1024,   // 最大文件大小，默认为50m
+  maxFiles: 10,                    // 按大小切割时，文件最大切割的份数
+  rotateDuration: 60000,           // 按大小切割时，文件扫描的间隔时间
+  maxDays: 31,                     // 日志保留最久天数
 };
 ```
 

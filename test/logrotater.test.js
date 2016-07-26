@@ -4,98 +4,190 @@ const path = require('path');
 const mm = require('egg-mock');
 const fs = require('fs');
 const glob = require('glob');
-const sleep = require('co-sleep');
+const moment = require('moment');
 
 require('should');
 
-describe('test/logrotater.test.js', function() {
+describe('test/logrotater.test.js', () => {
+  afterEach(mm.restore);
 
-  describe('logrotater', function() {
-    before(function(done) {
-      mm.env('unittest');
-      this.app = mm.app({
+  describe('logrotater', () => {
+    let app;
+    before(() => {
+      app = mm.app({
         baseDir: 'logrotater-app',
-        coverage: true,
-        plugin: 'log',
       });
-      this.app.ready(done);
+      return app.ready();
     });
-    after(function() {
-      mm.restore();
-      this.app.close();
-    });
+    after(() => app.close());
 
-    it('should rotate log file default', function* (done) {
-      const app = this.app;
-      const schedule = path.join(__dirname, '../app/schedule/rotateByFile');
+    const schedule = path.join(__dirname, '../app/schedule/rotateByFile');
+    const now = moment().startOf('date');
+
+    it('should rotate log file default', function* () {
+      fs.writeFileSync(path.join(app.config.logger.dir, 'foo.log.0000-00-00'), 'foo');
+      fs.writeFileSync(path.join(app.config.logger.dir,
+        `foo.log.${now.format('YYYY-MM-DD')}`), 'foo');
+      fs.writeFileSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(1, 'days').format('YYYY-MM-DD')}`), 'foo');
+      fs.writeFileSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(7, 'days').format('YYYY-MM-DD')}`), 'foo');
+      fs.writeFileSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(30, 'days').format('YYYY-MM-DD')}`), 'foo');
+      fs.writeFileSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(31, 'days').format('YYYY-MM-DD')}`), 'foo');
+      fs.writeFileSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(32, 'days').format('YYYY-MM-DD')}`), 'foo');
+      fs.writeFileSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`), 'foo');
+      fs.writeFileSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(50, 'days').format('YYYY-MM-DD')}`), 'foo');
+      fs.writeFileSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(6, 'months').format('YYYY-MM-DD')}`), 'foo');
+      fs.writeFileSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(1, 'years').format('YYYY-MM-DD')}`), 'foo');
+
       yield app.runSchedule(schedule);
-      setTimeout(function() {
-        // app.expect('stdout', /app got log-reload/);
-        // app.expect('stdout', /agent got log-reload/);
 
-        const files = glob.sync(path.join(__dirname, 'fixtures/logrotater-app/logs/logrotater/*.log.*'));
-        files.length.should.above(0);
-        files.forEach(function(file) {
-          // */app-monitor/logs/tracelog/rpc-client-stat.log.2015-09-18
-          // */app-monitor/logs/tracelog/sofa-mvc-stat.log.2015-09-18
-          file.should.match(/log.\d{4}-\d{2}-\d{2}$/);
-        });
-        done();
-      }, 10000);
+      const files = glob.sync(path.join(app.config.logger.dir, '*.log.*'));
+      files.length.should.equal(10);
+      files.filter(name => name.indexOf('foo.log.') > 0).should.length(6);
+      files.forEach(file => {
+        file.should.match(/log.\d{4}-\d{2}-\d{2}$/);
+      });
+
+      fs.existsSync(path.join(app.config.logger.dir, 'foo.log.0000-00-00')).should.equal(true);
+      fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.format('YYYY-MM-DD')}`)).should.equal(true);
+      fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(1, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
+      fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(7, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
+      fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(30, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
+      fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(31, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
+
+      fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(32, 'days').format('YYYY-MM-DD')}`)).should.equal(false);
+      fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`)).should.equal(false);
+      fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(50, 'days').format('YYYY-MM-DD')}`)).should.equal(false);
+      fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(6, 'months').format('YYYY-MM-DD')}`)).should.equal(false);
+      fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(1, 'years').format('YYYY-MM-DD')}`)).should.equal(false);
+
+      // run again should work
+      yield app.runSchedule(schedule);
+    });
+
+    it('should mock unlink file error', function* () {
+      mm(require('mz/fs'), 'unlink', function* () {
+        throw new Error('mock unlink error');
+      });
+      fs.writeFileSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`), 'foo');
+      yield app.runSchedule(schedule);
+      fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
+    });
+
+    it('should mock readdir error', function* () {
+      mm(require('mz/fs'), 'readdir', function* () {
+        throw new Error('mock readdir error');
+      });
+      fs.writeFileSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`), 'foo');
+      yield app.runSchedule(schedule);
+      fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
+    });
+
+    it('should disable remove expired log files', function* () {
+      mm(app.config.logrotater, 'maxDays', 0);
+      fs.writeFileSync(path.join(app.config.logger.dir, 'foo.log.0000-00-00'), 'foo');
+      fs.writeFileSync(path.join(app.config.logger.dir,
+        `foo.log.${now.format('YYYY-MM-DD')}`), 'foo');
+      fs.writeFileSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(1, 'days').format('YYYY-MM-DD')}`), 'foo');
+      fs.writeFileSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(7, 'days').format('YYYY-MM-DD')}`), 'foo');
+      fs.writeFileSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(31, 'days').format('YYYY-MM-DD')}`), 'foo');
+      fs.writeFileSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(32, 'days').format('YYYY-MM-DD')}`), 'foo');
+      fs.writeFileSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`), 'foo');
+
+      yield app.runSchedule(schedule);
+
+      fs.existsSync(path.join(app.config.logger.dir, 'foo.log.0000-00-00')).should.equal(true);
+      fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.format('YYYY-MM-DD')}`)).should.equal(true);
+      fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(1, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
+      fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(7, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
+      fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(31, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
+      fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(32, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
+      fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
     });
   });
 
-  describe('logrotater size', function() {
-    const mockfile = path.join(__dirname, 'fixtures/logrotater-app-size/logs/logrotater/egg-web.log');
-    const mocklogTxt = fs.readFileSync(path.join(__dirname, 'fixtures/logrotater-app-size/mocklog.txt'));
-
-    beforeEach(function(done) {
-      mm.env('unittest');
-      this.app = mm.app({
+  describe('logrotater size', () => {
+    let mockfile;
+    let app;
+    before(() => {
+      app = mm.app({
         baseDir: 'logrotater-app-size',
-        coverage: true,
-        plugin: 'log',
       });
-      this.app.ready(done);
+      mockfile = path.join(app.config.logger.dir, 'egg-web.log');
+      return app.ready();
     });
-    afterEach(function() {
-      mm.restore();
-      this.app.close();
-    });
+
+    after(() => app.close());
 
     it('should rotate by size', function* () {
-      const app = this.app;
+      fs.writeFileSync(mockfile, 'mock log text');
       const schedule = path.join(__dirname, '../app/schedule/rotateBySize');
       yield app.runSchedule(schedule);
-      yield sleep(2000);
-
-      // app.expect('stdout', /app got log-reload/);
-      // app.expect('stdout', /agent got log-reload/);
-
+      yield sleep(100);
       fs.existsSync(`${mockfile}.1`).should.equal(true);
     });
 
     it('should keep maxFiles file only', function* () {
-      const app = this.app;
-
-      // 第一次切分
+      fs.writeFileSync(mockfile, 'mock log text');
+      // rotate first
       const schedule = path.join(__dirname, '../app/schedule/rotateBySize');
       yield app.runSchedule(schedule);
-      yield sleep(2000);
+      yield sleep(100);
 
-      // 第二次切分
-      fs.writeFileSync(mockfile, mocklogTxt);
+      // files second
+      fs.writeFileSync(mockfile, 'mock log text');
       yield app.runSchedule(schedule);
 
-      yield sleep(2000);
+      yield sleep(100);
 
-      // 第三次切分
-      fs.writeFileSync(mockfile, mocklogTxt);
+      // files third
+      fs.writeFileSync(mockfile, 'mock log text');
       yield app.runSchedule(schedule);
-      yield sleep(2000);
+      yield sleep(100);
+      const files = glob.sync(path.join(app.config.logger.dir, '*.log*'));
+      console.log(files);
       fs.existsSync(`${mockfile}.1`).should.equal(true);
       fs.existsSync(`${mockfile}.2`).should.equal(true);
       fs.existsSync(`${mockfile}.3`).should.equal(false);
     });
   });
 });
+
+function sleep(ms) {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
+}
