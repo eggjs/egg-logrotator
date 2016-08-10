@@ -185,9 +185,9 @@ describe('test/logrotater.test.js', () => {
       // files third
       fs.writeFileSync(mockfile, 'mock log text');
       yield app.runSchedule(schedule);
-      yield sleep(100);
+      yield sleep(1000);
       const files = glob.sync(path.join(app.config.logger.dir, '*.log*'));
-      console.log(files);
+      console.log(files, `${mockfile}.2`, fs.existsSync(`${mockfile}.2`));
       fs.existsSync(`${mockfile}.1`).should.equal(true);
       fs.existsSync(`${mockfile}.2`).should.equal(true);
       fs.existsSync(`${mockfile}.3`).should.equal(false);
