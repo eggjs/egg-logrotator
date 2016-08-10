@@ -8,33 +8,44 @@ module.exports = app => {
   const exports = {};
 
   const logger = app.coreLogger;
-  const rotateLogDirs = app.config.logger.rotateLogDirs;
-  const messenger = app.messenger;
 
   exports.schedule = {
-    type: 'worker', // 类型 为 `all` 的定时任务在到执行时间时所有的进程都会执行
-    cron: '0 0 * * *', // 直接指定执行的间隔，支持 ms 格式的字符串或者毫秒级别的数值
+    type: 'worker', // only one worker run this task
+    cron: '0 0 * * *', // run every day at 00:00
   };
   exports.task = function* () {
+    let logDirs = [];
+    // try to use rotateLogDirs first
+    if (app.config.logger.rotateLogDirs && app.config.logger.rotateLogDirs.length > 0) {
+      logDirs = logDirs.concat(app.config.logger.rotateLogDirs);
+    }
+    // auto find all log dir
+    for (const key in app.loggers) {
+      const logDir = path.dirname(app.loggers[key].options.file);
+      if (logDirs.indexOf(logDir) === -1) {
+        logDirs.push(logDir);
+      }
+    }
+
     const maxDays = app.config.logrotater.maxDays;
     if (maxDays && maxDays > 0) {
       try {
-        yield rotateLogDirs.map(logdir => removeExpiredLogFiles(logdir, maxDays));
+        yield logDirs.map(logdir => removeExpiredLogFiles(logdir, maxDays));
       } catch (err) {
         logger.error(err);
       }
     }
 
     try {
-      yield rotateLogDirs.map(logdir => renameLogfiles(logdir));
+      yield logDirs.map(logdir => renameLogfiles(logdir));
     } catch (err) {
       logger.error(err);
     }
 
     // tell every one to reload logger
-    logger.info('[egg-logrotater] broadcast log-reload to workers');
-    messenger.sendToApp('log-reload');
-    messenger.sendToAgent('log-reload');
+    logger.info('[egg-logrotater] broadcast log-reload to workers, logDirs: %j', logDirs);
+    app.messenger.sendToApp('log-reload');
+    app.messenger.sendToAgent('log-reload');
   };
 
   // rename xxx.log => xxx.log.YYYY-MM-DD
