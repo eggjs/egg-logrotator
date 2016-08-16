@@ -8,20 +8,20 @@ const moment = require('moment');
 
 require('should');
 
-describe('test/logrotater.test.js', () => {
+describe('test/logrotator.test.js', () => {
   afterEach(mm.restore);
 
-  describe('logrotater', () => {
+  describe('logrotator', () => {
     let app;
     before(() => {
       app = mm.app({
-        baseDir: 'logrotater-app',
+        baseDir: 'logrotator-app',
       });
       return app.ready();
     });
     after(() => app.close());
 
-    const schedule = path.join(__dirname, '../app/schedule/rotateByFile');
+    const schedule = path.join(__dirname, '../app/schedule/rotate_by_file');
     const now = moment().startOf('date');
 
     it('should rotate log file default', function* () {
@@ -115,7 +115,7 @@ describe('test/logrotater.test.js', () => {
     });
 
     it('should disable remove expired log files', function* () {
-      mm(app.config.logrotater, 'maxDays', 0);
+      mm(app.config.logrotator, 'maxDays', 0);
       fs.writeFileSync(path.join(app.config.logger.dir, 'foo.log.0000-00-00'), 'foo');
       fs.writeFileSync(path.join(app.config.logger.dir,
         `foo.log.${now.format('YYYY-MM-DD')}`), 'foo');
@@ -148,12 +148,12 @@ describe('test/logrotater.test.js', () => {
     });
   });
 
-  describe('logrotater size', () => {
+  describe('logrotator size', () => {
     let mockfile;
     let app;
     before(() => {
       app = mm.app({
-        baseDir: 'logrotater-app-size',
+        baseDir: 'logrotator-app-size',
       });
       mockfile = path.join(app.config.logger.dir, 'egg-web.log');
       return app.ready();
@@ -163,7 +163,7 @@ describe('test/logrotater.test.js', () => {
 
     it('should rotate by size', function* () {
       fs.writeFileSync(mockfile, 'mock log text');
-      const schedule = path.join(__dirname, '../app/schedule/rotateBySize');
+      const schedule = path.join(__dirname, '../app/schedule/rotate_by_size');
       yield app.runSchedule(schedule);
       yield sleep(100);
       fs.existsSync(`${mockfile}.1`).should.equal(true);
@@ -172,7 +172,7 @@ describe('test/logrotater.test.js', () => {
     it('should keep maxFiles file only', function* () {
       fs.writeFileSync(mockfile, 'mock log text');
       // rotate first
-      const schedule = path.join(__dirname, '../app/schedule/rotateBySize');
+      const schedule = path.join(__dirname, '../app/schedule/rotate_by_size');
       yield app.runSchedule(schedule);
       yield sleep(100);
 

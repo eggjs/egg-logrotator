@@ -1,9 +1,9 @@
 {
-  "name": "egg-logrotater",
+  "name": "egg-logrotator",
   "version": "1.0.1",
-  "description": "logrotater for egg",
+  "description": "logrotator for egg",
   "eggPlugin": {
-    "name": "logrotater",
+    "name": "logrotator",
     "dep": [
       "schedule"
     ]
@@ -13,7 +13,6 @@
     "plugin"
   ],
   "dependencies": {
-    "co": "^4.6.0",
     "moment": "^2.14.1",
     "mz": "^2.4.0"
   },
@@ -24,17 +23,17 @@
     "app.js"
   ],
   "devDependencies": {
-    "autod": "2",
-    "egg": "*",
-    "egg-bin": "1",
-    "egg-ci": "1",
-    "egg-mock": "*",
-    "eslint": "3",
-    "eslint-config-egg": "3",
-    "glob": "6",
+    "autod": "^2.7.0",
+    "egg": "test",
+    "egg-bin": "^1.2.0",
+    "egg-ci": "^1.0.3",
+    "egg-mock": "^0.0.4",
+    "eslint": "^3.3.1",
+    "eslint-config-egg": "^3.1.0",
+    "glob": "^7.0.5",
     "pedding": "1",
-    "should": "8",
-    "supertest": "1"
+    "should": "^11.1.0",
+    "supertest": "^2.0.0"
   },
   "engines": {
     "node": ">=4.0.0"
@@ -52,12 +51,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/eggjs/egg-logrotater.git"
+    "url": "git+https://github.com/eggjs/egg-logrotator.git"
   },
   "bugs": {
     "url": "https://github.com/eggjs/egg/issues"
   },
-  "homepage": "https://github.com/eggjs/egg-logrotater#readme",
+  "homepage": "https://github.com/eggjs/egg-logrotator#readme",
   "author": "tianyi.jiangty",
   "license": "MIT"
 }
