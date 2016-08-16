@@ -64,12 +64,13 @@ module.exports = app => {
       const newLogfile = logfile + logname;
       const exists = yield fs.exists(newLogfile);
       if (exists) {
-        return logger.error(`[egg-logrotator] logfile ${newLogfile} exists!!!`);
+        const err = new Error(`[egg-logrotator] logfile ${newLogfile} exists!!!`);
+        return logger.error(err);
       }
       try {
         yield fs.rename(logfile, newLogfile);
       } catch (err) {
-        err.message = `[egg-logrotator] rename logfile ${logfile} to ${newLogfile} ${err.message}`;
+        err.message = `[egg-logrotator] rename logfile ${logfile} to ${newLogfile}, ${err.message}`;
         logger.error(err);
       }
     });
