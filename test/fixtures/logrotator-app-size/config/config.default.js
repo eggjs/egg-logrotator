@@ -4,7 +4,7 @@ const path = require('path');
 
 module.exports = appInfo => {
   const exports = {
-    logrotater: {
+    logrotator: {
       filesRotateBySize: [ path.join(appInfo.baseDir, `logs/${appInfo.name}/egg-web.log`) ],
       maxFileSize: 1,
       maxFiles: 2,
