@@ -8,20 +8,20 @@ const moment = require('moment');
 
 require('should');
 
-describe('test/logrotater.test.js', () => {
+describe('test/logrotator.test.js', () => {
   afterEach(mm.restore);
 
-  describe('logrotater', () => {
+  describe('logrotator', () => {
     let app;
     before(() => {
       app = mm.app({
-        baseDir: 'logrotater-app',
+        baseDir: 'logrotator-app',
       });
       return app.ready();
     });
     after(() => app.close());
 
-    const schedule = path.join(__dirname, '../app/schedule/rotateByFile');
+    const schedule = path.join(__dirname, '../app/schedule/rotate_by_file');
     const now = moment().startOf('date');
 
     it('should rotate log file default', function* () {
@@ -92,6 +92,34 @@ describe('test/logrotater.test.js', () => {
       yield app.runSchedule(schedule);
     });
 
+    it('should error when rename to existed file', function* () {
+      const file1 = path.join(app.config.logger.dir, 'foo1.log');
+      const file2 = path.join(app.config.logger.dir,
+        `foo1.log.${now.clone().subtract(1, 'days').format('YYYY-MM-DD')}`);
+      fs.writeFileSync(file1, 'foo');
+      fs.writeFileSync(file2, 'foo');
+      let msg = '';
+      mm(app.coreLogger, 'error', err => {
+        msg = err.message;
+      });
+      yield app.runSchedule(schedule);
+      fs.unlinkSync(file1);
+      fs.unlinkSync(file2);
+      msg.should.equal(`[egg-logrotator] logfile ${file2} exists!!!`);
+    });
+
+    it('should error when rename error', function* () {
+      const file1 = path.join(app.config.logger.dir, 'foo1.log');
+      fs.writeFileSync(file1, 'foo');
+      mm(app.coreLogger, 'error', err => {
+        err.message.should.match(/^\[egg-logrotator\] rename logfile .*?, rename error$/);
+      });
+      mm(require('mz/fs'), 'rename', function* () {
+        throw new Error('rename error');
+      });
+      yield app.runSchedule(schedule);
+    });
+
     it('should mock unlink file error', function* () {
       mm(require('mz/fs'), 'unlink', function* () {
         throw new Error('mock unlink error');
@@ -115,7 +143,7 @@ describe('test/logrotater.test.js', () => {
     });
 
     it('should disable remove expired log files', function* () {
-      mm(app.config.logrotater, 'maxDays', 0);
+      mm(app.config.logrotator, 'maxDays', 0);
       fs.writeFileSync(path.join(app.config.logger.dir, 'foo.log.0000-00-00'), 'foo');
       fs.writeFileSync(path.join(app.config.logger.dir,
         `foo.log.${now.format('YYYY-MM-DD')}`), 'foo');
@@ -146,14 +174,16 @@ describe('test/logrotater.test.js', () => {
       fs.existsSync(path.join(app.config.logger.dir,
         `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
     });
+
   });
 
-  describe('logrotater size', () => {
+  describe('logrotator size', () => {
     let mockfile;
     let app;
+    const schedule = path.join(__dirname, '../app/schedule/rotate_by_size');
     before(() => {
       app = mm.app({
-        baseDir: 'logrotater-app-size',
+        baseDir: 'logrotator-app-size',
       });
       mockfile = path.join(app.config.logger.dir, 'egg-web.log');
       return app.ready();
@@ -163,7 +193,6 @@ describe('test/logrotater.test.js', () => {
 
     it('should rotate by size', function* () {
       fs.writeFileSync(mockfile, 'mock log text');
-      const schedule = path.join(__dirname, '../app/schedule/rotateBySize');
       yield app.runSchedule(schedule);
       yield sleep(100);
       fs.existsSync(`${mockfile}.1`).should.equal(true);
@@ -172,7 +201,6 @@ describe('test/logrotater.test.js', () => {
     it('should keep maxFiles file only', function* () {
       fs.writeFileSync(mockfile, 'mock log text');
       // rotate first
-      const schedule = path.join(__dirname, '../app/schedule/rotateBySize');
       yield app.runSchedule(schedule);
       yield sleep(100);
 
@@ -195,7 +223,22 @@ describe('test/logrotater.test.js', () => {
       }
       fs.existsSync(`${mockfile}.3`).should.equal(false);
     });
+
+    it('should error when stat error', function* () {
+      fs.writeFileSync(mockfile, 'mock log text');
+      mm(require('mz/fs'), 'stat', function* () {
+        throw new Error('stat error');
+      });
+      let msg = '';
+      mm(app.coreLogger, 'error', err => {
+        msg = err.message;
+      });
+      yield app.runSchedule(schedule);
+      msg.should.eql('[egg-logrotator] stat error');
+
+    });
   });
+
 });
 
 function sleep(ms) {

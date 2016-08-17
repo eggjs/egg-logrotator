@@ -6,7 +6,7 @@ module.exports = app => {
   const exports = {};
 
   const logger = app.coreLogger;
-  const appLogrotatorConfig = app.config.logrotater;
+  const appLogrotatorConfig = app.config.logrotator;
   const filesRotateBySize = appLogrotatorConfig.filesRotateBySize || [];
   const maxFileSize = appLogrotatorConfig.maxFileSize;
   const maxFiles = appLogrotatorConfig.maxFiles;
@@ -25,12 +25,12 @@ module.exports = app => {
       try {
         const stat = yield fs.stat(logfile);
         if (stat.size >= maxFileSize) {
-          logger.info(`[egg-logrotater] file ${logfile} reach the maximum file size, current size: ${stat.size}, max size: ${maxFileSize}`);
+          logger.info(`[egg-logrotator] file ${logfile} reach the maximum file size, current size: ${stat.size}, max size: ${maxFileSize}`);
           needSendMessage = true;
           yield rotateBySize(logfile);
         }
       } catch (e) {
-        e.message = `[egg-logrotater] ${e.message}`;
+        e.message = `[egg-logrotator] ${e.message}`;
         logger.error(e);
       }
     });
@@ -59,7 +59,7 @@ module.exports = app => {
     // logfile => logfile.1
     yield fs.rename(logfile, `${logfile}.1`);
 
-    logger.info('[egg-logrotater] broadcast egg-logrotater-reload to workers');
+    logger.info('[egg-logrotator] broadcast egg-logrotator-reload to workers');
   }
 
   // 如果文件存在，尝试备份，如果备份失败，直接删除文件。这个操作只会对按文件大小切分的场景生效。
