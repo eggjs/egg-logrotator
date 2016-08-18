@@ -5,6 +5,8 @@ const mm = require('egg-mock');
 const fs = require('fs');
 const glob = require('glob');
 const moment = require('moment');
+const request = require('supertest');
+
 
 require('should');
 
@@ -239,6 +241,59 @@ describe('test/logrotator.test.js', () => {
     });
   });
 
+  describe('reload logger', () => {
+    let app;
+    const baseDir = path.join(__dirname, 'fixtures/logger-reload');
+    before(() => {
+      app = mm.cluster({
+        baseDir: 'logger-reload',
+      });
+      return app.ready();
+    });
+    // logging to files
+    before(() => {
+      return request(app.callback())
+      .get('/log')
+      .expect({
+        method: 'GET',
+        path: '/log',
+      })
+      .expect(200);
+    });
+    // start rotating
+    before(() => {
+      return request(app.callback())
+      .get('/rotate')
+      .expect(200);
+    });
+
+    after(() => app.close());
+
+    it('should reload worker loggers', function* () {
+      yield sleep(2000);
+
+      const logname = moment().subtract(1, 'days').format('.YYYY-MM-DD');
+      const logfile1 = path.join(baseDir, 'logs/logger-reload/logger-reload-web.log');
+      const content1 = fs.readFileSync(logfile1, 'utf8');
+      content1.should.equal('');
+
+      const logfile2 = path.join(baseDir, `logs/logger-reload/logger-reload-web.log${logname}`);
+      const content2 = fs.readFileSync(logfile2, 'utf8');
+      content2.should.containEql('GET /');
+
+      const logfile3 = path.join(baseDir, `logs/logger-reload/egg-agent.log${logname}`);
+      const content3 = fs.readFileSync(logfile3, 'utf8');
+      content3.should.containEql('agent warn');
+
+      yield request(app.callback())
+      .get('/log')
+      .expect(200);
+
+      // will logging to new file
+      const content4 = fs.readFileSync(logfile1, 'utf8');
+      content4.should.containEql('GET /');
+    });
+  });
 });
 
 function sleep(ms) {
