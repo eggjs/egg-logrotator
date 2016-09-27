@@ -23,6 +23,10 @@ module.exports = app => {
 
     yield filesRotateBySize.map(logfile => function* () {
       try {
+        const exists = yield fs.exists(logfile);
+        if (!exists) {
+          return;
+        }
         const stat = yield fs.stat(logfile);
         if (stat.size >= maxFileSize) {
           logger.info(`[egg-logrotator] file ${logfile} reach the maximum file size, current size: ${stat.size}, max size: ${maxFileSize}`);
@@ -34,18 +38,16 @@ module.exports = app => {
         logger.error(e);
       }
     });
+
     if (needSendMessage) {
+      logger.info('[egg-logrotator] logrotate by size');
+      logger.info('[egg-logrotator] broadcast log-reload to workers');
       messenger.sendToApp('log-reload');
       messenger.sendToAgent('log-reload');
     }
   };
 
-
   function* rotateBySize(logfile) {
-    const exists = yield fs.exists(logfile);
-    if (!exists) {
-      return;
-    }
     // remove max
     const maxFileName = `${logfile}.${maxFiles}`;
     const maxExists = yield fs.exists(maxFileName);
@@ -58,21 +60,21 @@ module.exports = app => {
     }
     // logfile => logfile.1
     yield fs.rename(logfile, `${logfile}.1`);
-
-    logger.info('[egg-logrotator] broadcast egg-logrotator-reload to workers');
   }
 
-  // 如果文件存在，尝试备份，如果备份失败，直接删除文件。这个操作只会对按文件大小切分的场景生效。
-  function* renameOrDelete(targetPath, backupPath) {
-    const targetExists = yield fs.exists(targetPath);
-    if (!targetExists) {
+  // rename from srcPath to targetPath, for example foo.log.1 > foo.log.2
+  function* renameOrDelete(srcPath, targetPath) {
+    const srcExists = yield fs.exists(srcPath);
+    if (!srcExists) {
       return;
     }
-    const backupExists = yield fs.exists(backupPath);
-    if (backupExists) {
-      yield fs.unlink(targetPath);
+    const targetExists = yield fs.exists(targetPath);
+    // if target file exists, then delete it,
+    // because the target file always be renamed first.
+    if (targetExists) {
+      yield fs.unlink(srcPath);
     } else {
-      yield fs.rename(targetPath, backupPath);
+      yield fs.rename(srcPath, targetPath);
     }
   }
 

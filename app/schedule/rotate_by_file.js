@@ -4,16 +4,15 @@ const path = require('path');
 const fs = require('mz/fs');
 const moment = require('moment');
 
-module.exports = app => {
-  const exports = {};
+module.exports = app => ({
 
-  const logger = app.coreLogger;
-
-  exports.schedule = {
+  schedule: {
     type: 'worker', // only one worker run this task
     cron: '0 0 * * *', // run every day at 00:00
-  };
-  exports.task = function* () {
+  },
+
+  * task() {
+    const logger = app.coreLogger;
     let logDirs = [];
     // try to use rotateLogDirs first
     if (app.config.logger.rotateLogDirs && app.config.logger.rotateLogDirs.length > 0) {
@@ -27,86 +26,45 @@ module.exports = app => {
       }
     }
 
-    const maxDays = app.config.logrotator.maxDays;
-    if (maxDays && maxDays > 0) {
-      try {
-        yield logDirs.map(logdir => removeExpiredLogFiles(logdir, maxDays));
-      } catch (err) {
-        logger.error(err);
-      }
-    }
-
     try {
-      yield logDirs.map(logdir => renameLogfiles(logdir));
+      yield logDirs.map(logdir => renameLogfiles(logdir, logger));
     } catch (err) {
       logger.error(err);
     }
 
     // tell every one to reload logger
+    logger.info('[egg-logrotator] logrotate by file');
     logger.info('[egg-logrotator] broadcast log-reload to workers, logDirs: %j', logDirs);
     app.messenger.sendToApp('log-reload');
     app.messenger.sendToAgent('log-reload');
-  };
+  },
+});
 
-  // rename xxx.log => xxx.log.YYYY-MM-DD
-  function* renameLogfiles(logdir) {
-    const logname = moment().subtract(1, 'days').format('.YYYY-MM-DD');
-    const files = yield fs.readdir(logdir);
-    const names = files.filter(name => name.endsWith('.log'));
-    if (names.length === 0) {
-      return;
-    }
 
-    logger.info(`[egg-logrotator] start rename files:${names} to ${logdir}/*.log${logname}`);
-
-    yield names.map(name => function* () {
-      const logfile = path.join(logdir, name);
-      const newLogfile = logfile + logname;
-      const exists = yield fs.exists(newLogfile);
-      if (exists) {
-        const err = new Error(`[egg-logrotator] logfile ${newLogfile} exists!!!`);
-        return logger.error(err);
-      }
-      try {
-        yield fs.rename(logfile, newLogfile);
-      } catch (err) {
-        err.message = `[egg-logrotator] rename logfile ${logfile} to ${newLogfile}, ${err.message}`;
-        logger.error(err);
-      }
-    });
+// rename xxx.log => xxx.log.YYYY-MM-DD
+function* renameLogfiles(logdir, logger) {
+  const logname = moment().subtract(1, 'days').format('.YYYY-MM-DD');
+  const files = yield fs.readdir(logdir);
+  const names = files.filter(name => name.endsWith('.log'));
+  if (names.length === 0) {
+    return;
   }
 
-  // remove expired log files: xxx.log.YYYY-MM-DD
-  function* removeExpiredLogFiles(logdir, maxDays) {
-    const files = yield fs.readdir(logdir);
-    const expriedDate = moment().subtract(maxDays, 'days').startOf('date');
-    const names = files.filter(file => {
-      const name = path.extname(file).substring(1);
-      if (!/^\d{4}\-\d{2}\-\d{2}$/.test(name)) {
-        return false;
-      }
-      const date = moment(name, 'YYYY-MM-DD').startOf('date');
-      if (!date.isValid()) {
-        return false;
-      }
-      return date.isBefore(expriedDate);
-    });
-    if (names.length === 0) {
-      return;
+  logger.info(`[egg-logrotator] start rename files:${names} to ${logdir}/*.log${logname}`);
+
+  yield names.map(name => function* () {
+    const logfile = path.join(logdir, name);
+    const newLogfile = logfile + logname;
+    const exists = yield fs.exists(newLogfile);
+    if (exists) {
+      const err = new Error(`[egg-logrotator] logfile ${newLogfile} exists!!!`);
+      return logger.error(err);
     }
-
-    logger.info(`[egg-logrotator] start remove ${logdir} files: ${names.join(', ')}`);
-
-    yield names.map(name => function* () {
-      const logfile = path.join(logdir, name);
-      try {
-        yield fs.unlink(logfile);
-      } catch (err) {
-        err.message = `[egg-logrotator] remove logfile ${logfile} error, ${err.message}`;
-        logger.error(err);
-      }
-    });
-  }
-
-  return exports;
-};
+    try {
+      yield fs.rename(logfile, newLogfile);
+    } catch (err) {
+      err.message = `[egg-logrotator] rename logfile ${logfile} to ${newLogfile}, ${err.message}`;
+      logger.error(err);
+    }
+  });
+}
