@@ -5,8 +5,8 @@ const fs = require('mz/fs');
 const Rotator = require('./rotator');
 
 
-// rotate log by day
-// rename from foo.log to foo.log.YYYY-MM-DD
+// rotate log by hour
+// rename from foo.log to foo.log.YYYY-MM-DD-HH
 class DayRotator extends Rotator {
 
   * getRotateFiles() {

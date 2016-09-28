@@ -18,6 +18,7 @@ class Rotator {
 
   * rotate() {
     const files = yield this.getRotateFiles();
+    assert(files instanceof Map, 'getRotateFiles should return a Map');
     const rotatedFile = [];
     for (const file of files.values()) {
       try {
