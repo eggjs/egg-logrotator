@@ -191,7 +191,7 @@ describe('test/logrotator.test.js', () => {
       assert.equal(msg, '[egg-logrotator] stat error');
     });
 
-    it('should not great than maxSize', function* () {
+    it('should not great than maxFileSize', function* () {
       fs.unlinkSync(`${mockfile}.1`);
       fs.writeFileSync(mockfile, '');
       yield app.runSchedule(schedule);
