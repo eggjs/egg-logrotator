@@ -11,8 +11,9 @@
  * @property {Number} maxDays - keep max days log files
  */
 exports.logrotator = {
-  // for rotate_by_size
+  // for rotate_by_hour
   filesRotateByHour: null,
+  // for rotate_by_size
   filesRotateBySize: null,
   maxFileSize: 50 * 1024 * 1024,
   maxFiles: 10,

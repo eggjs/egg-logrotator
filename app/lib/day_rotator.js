@@ -10,11 +10,6 @@ const Rotator = require('./rotator');
 // rename from foo.log to foo.log.YYYY-MM-DD
 class DayRotator extends Rotator {
 
-  constructor(options) {
-    super(options);
-    this.app = this.options.app;
-  }
-
   * getRotateFiles() {
     const files = new Map();
     const loggers = this.app.loggers;

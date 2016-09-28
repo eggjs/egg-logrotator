@@ -15,7 +15,6 @@ module.exports = app => {
 
   app.get('/rotate', function* () {
     const schedule = path.join(__dirname, '../../../../app/schedule/rotate_by_file');
-    console.log(schedule);
     yield app.runSchedule(schedule);
     this.body = 'done';
   });
