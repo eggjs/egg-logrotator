@@ -12,22 +12,6 @@ const assert = require('power-assert');
 describe('test/logrotator.test.js', () => {
   afterEach(mm.restore);
 
-  describe('extend', function() {
-    let app;
-    before(() => {
-      app = mm.app({
-        baseDir: 'logrotator-app',
-        cache: false,
-      });
-      return app.ready();
-    });
-    after(() => app.close());
-
-    it('should export app.LogRotator', function() {
-      assert(app.LogRotator === require('../app/lib/rotator'));
-    });
-  });
-
   describe('rotate_by_day', () => {
 
     let app;
@@ -43,6 +27,10 @@ describe('test/logrotator.test.js', () => {
 
     const schedule = path.join(__dirname, '../app/schedule/rotate_by_file');
     const now = moment().startOf('date');
+
+    it('should export app.LogRotator', function() {
+      assert(app.LogRotator === require('../app/lib/rotator'));
+    });
 
     it('should rotate log file default', function* () {
       yield app.runSchedule(schedule);
