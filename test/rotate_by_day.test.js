@@ -14,6 +14,7 @@ describe('test/rotate_by_day.test.js', () => {
   before(() => {
     app = mm.app({
       baseDir: 'logrotator-app',
+      cache: false,
     });
     return app.ready();
   });

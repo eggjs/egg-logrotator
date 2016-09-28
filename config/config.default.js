@@ -12,6 +12,7 @@
  */
 exports.logrotator = {
   // for rotate_by_size
+  filesRotateByHour: null,
   filesRotateBySize: null,
   maxFileSize: 50 * 1024 * 1024,
   maxFiles: 10,
