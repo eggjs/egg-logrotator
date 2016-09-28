@@ -3,6 +3,10 @@
 const fs = require('mz/fs');
 const Rotator = require('./rotator');
 
+
+// rotate log by size, if the size of file over maxSize,
+// it will rename from foo.log to foo.log.1
+// if foo.log.1 exists, foo.log.1 will rename to foo.log.2
 class SizeRotator extends Rotator {
 
   * getRotateFiles() {

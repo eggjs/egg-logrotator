@@ -3,7 +3,8 @@
 /**
  * logrotator options
  * @member Config#logrotator
- * @property {Array} filesRotateBySize - Array for files path which need rotate
+ * @property {Array} filesRotateByHour - list of files that will be rotated by hour
+ * @property {Array} filesRotateBySize - list of files that will be rotated by size
  * @property {Number} maxFileSize - Max file size to judge if any file need rotate
  * @property {Number} maxFiles - pieces rotate by size
  * @property {Number} maxDays - keep max days log files, default is `31`. Set `0` to keep all logs.

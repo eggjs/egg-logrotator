@@ -2,6 +2,8 @@
 
 const assert = require('assert');
 const fs = require('mz/fs');
+const debug = require('debug')('egg-logrotator');
+
 
 class Rotator {
 
@@ -10,10 +12,7 @@ class Rotator {
     assert(this.options.app, 'options.app is required');
     this.app = this.options.app;
     this.logger = this.app.coreLogger;
-  }
-
-  * getRotateFiles() {
-    return new Map();
+    assert(typeof this.getRotateFiles === 'function', 'getRotateFiles should be function');
   }
 
   * rotate() {
@@ -22,6 +21,7 @@ class Rotator {
     const rotatedFile = [];
     for (const file of files.values()) {
       try {
+        debug('rename from %s to %s', file.srcPath, file.targetPath);
         yield renameOrDelete(file.srcPath, file.targetPath);
         rotatedFile.push(`${file.srcPath} -> ${file.targetPath}`);
       } catch (err) {

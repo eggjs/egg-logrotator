@@ -144,8 +144,8 @@ describe('test/logrotator.test.js', () => {
       mockfile = path.join(app.config.logger.dir, 'egg-web.log');
       return app.ready();
     });
-
     after(() => app.close());
+    afterEach(mm.restore);
 
     it('should rotate by size', function* () {
       fs.writeFileSync(mockfile, 'mock log text');
@@ -189,6 +189,13 @@ describe('test/logrotator.test.js', () => {
       });
       yield app.runSchedule(schedule);
       assert.equal(msg, '[egg-logrotator] stat error');
+    });
+
+    it('should not great than maxSize', function* () {
+      fs.unlinkSync(`${mockfile}.1`);
+      fs.writeFileSync(mockfile, '');
+      yield app.runSchedule(schedule);
+      assert(fs.existsSync(`${mockfile}.1`) === false);
     });
   });
 
