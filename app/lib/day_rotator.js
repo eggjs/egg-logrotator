@@ -13,6 +13,7 @@ class DayRotator extends Rotator {
   constructor(options) {
     super(options);
     this.filesRotateBySize = this.app.config.logrotator.filesRotateBySize || [];
+    this.filesRotateByHour = this.app.config.logrotator.filesRotateByHour || [];
   }
 
   * getRotateFiles() {
@@ -47,6 +48,11 @@ class DayRotator extends Rotator {
   _setFile(srcPath, files) {
     // don't rotate logPath in filesRotateBySize
     if (this.filesRotateBySize.indexOf(srcPath) > -1) {
+      return;
+    }
+
+    // don't rotate logPath in filesRotateByHour
+    if (this.filesRotateByHour.indexOf(srcPath) > -1) {
       return;
     }
 

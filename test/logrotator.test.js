@@ -108,6 +108,13 @@ describe('test/logrotator.test.js', () => {
       const date = now.clone().subtract(1, 'days').format('YYYY-MM-DD');
       assert(fs.existsSync(path.join(logDir, `size.log.${date}`)) === false);
     });
+
+    it('should ignore logPath in filesRotateByHour', function* () {
+      yield app.runSchedule(schedule);
+      const logDir = app.config.logger.dir;
+      const date = now.clone().subtract(1, 'days').format('YYYY-MM-DD');
+      assert(fs.existsSync(path.join(logDir, `hour.log.${date}`)) === false);
+    });
   });
 
   describe('rotate_by_size', () => {
@@ -393,6 +400,32 @@ describe('test/logrotator.test.js', () => {
         `foo.log.${now.clone().subtract(32, 'days').format('YYYY-MM-DD')}`)));
       assert(fs.existsSync(path.join(app.config.logger.dir,
         `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`)));
+    });
+  });
+
+
+  describe('rotate_by_hour', () => {
+
+    let app;
+    before(() => {
+      app = mm.app({
+        baseDir: 'logrotator-app-hour',
+        cache: false,
+      });
+      return app.ready();
+    });
+    after(() => app.close());
+    afterEach(mm.restore);
+
+    const schedule = path.join(__dirname, '../app/schedule/rotate_by_hour');
+
+    it('should rotate log file default', function* () {
+      yield app.runSchedule(schedule);
+
+      const logDir = app.config.logger.dir;
+      const date = moment().subtract(1, 'hours').format('YYYY-MM-DD-HH');
+      assert.equal(fs.existsSync(path.join(logDir, `egg-web.log.${date}`)), true);
+      assert.equal(fs.existsSync(path.join(logDir, 'egg-web.log')), false);
     });
   });
 

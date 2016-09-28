@@ -5,6 +5,9 @@ const path = require('path');
 module.exports = () => {
   const exports = {
     logrotator: {
+      filesRotateByHour: [
+        path.join(__dirname, '../logs', 'logrotator', 'hour.log'),
+      ],
       filesRotateBySize: [
         path.join(__dirname, '../logs', 'logrotator', 'egg-web.log'),
         path.join(__dirname, '../logs', 'logrotator', 'size.log'),
@@ -21,6 +24,9 @@ module.exports = () => {
       },
       sizeLogger: {
         file: path.join(__dirname, '../logs', 'logrotator', 'size.log'),
+      },
+      hourLogger: {
+        file: path.join(__dirname, '../logs', 'logrotator', 'hour.log'),
       },
     },
   };
