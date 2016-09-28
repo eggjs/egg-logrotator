@@ -9,8 +9,8 @@ module.exports = app => {
   return {
 
     schedule: {
-      interval: app.config.logrotator.rotateDuration,
       type: 'worker',
+      interval: app.config.logrotator.rotateDuration,
       disable: (app.config.logrotator.filesRotateBySize || []).length === 0,
     },
 

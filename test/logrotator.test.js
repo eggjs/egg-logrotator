@@ -32,16 +32,16 @@ describe('test/logrotator.test.js', () => {
       yield app.runSchedule(schedule);
 
       const files = glob.sync(path.join(app.config.logger.dir, '*.log.*'));
-      assert.equal(files.length, 4);
+      assert(files.length === 3);
       assert(files.filter(name => name.indexOf('foo.log.') > 0));
       files.forEach(file => assert(/log.\d{4}-\d{2}-\d{2}$/.test(file)));
 
       const logDir = app.config.logger.dir;
       const date = now.clone().subtract(1, 'days').format('YYYY-MM-DD');
-      assert.equal(fs.existsSync(path.join(logDir, `egg-web.log.${date}`)), true);
-      // schedule will not reload logger
-      assert.equal(fs.existsSync(path.join(logDir, 'egg-web.log')), false);
+      // assert.equal(fs.existsSync(path.join(logDir, `egg-web.log.${date}`)), true);
+      // assert.equal(fs.existsSync(path.join(logDir, 'egg-web.log')), false);
       assert.equal(fs.existsSync(path.join(logDir, `egg-agent.log.${date}`)), true);
+      // schedule will not reload logger
       assert.equal(fs.existsSync(path.join(logDir, 'egg-agent.log')), false);
       assert.equal(fs.existsSync(path.join(logDir, `logrotator-web.log.${date}`)), true);
       assert.equal(fs.existsSync(path.join(logDir, 'logrotator-web.log')), false);
@@ -102,6 +102,12 @@ describe('test/logrotator.test.js', () => {
         `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`)));
     });
 
+    it('should ignore logPath in filesRotateBySize', function* () {
+      yield app.runSchedule(schedule);
+      const logDir = app.config.logger.dir;
+      const date = now.clone().subtract(1, 'days').format('YYYY-MM-DD');
+      assert(fs.existsSync(path.join(logDir, `size.log.${date}`)) === false);
+    });
   });
 
   describe('rotate_by_size', () => {

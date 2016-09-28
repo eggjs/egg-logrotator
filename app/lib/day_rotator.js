@@ -10,6 +10,11 @@ const Rotator = require('./rotator');
 // rename from foo.log to foo.log.YYYY-MM-DD
 class DayRotator extends Rotator {
 
+  constructor(options) {
+    super(options);
+    this.filesRotateBySize = this.app.config.logrotator.filesRotateBySize || [];
+  }
+
   * getRotateFiles() {
     const files = new Map();
     const loggers = this.app.loggers;
@@ -39,17 +44,15 @@ class DayRotator extends Rotator {
     return files;
   }
 
-  getTargeFile(logPath) {
-    const date = moment().subtract(1, 'days').format('.YYYY-MM-DD');
-    return logPath + date;
-  }
+  _setFile(srcPath, files) {
+    // don't rotate logPath in filesRotateBySize
+    if (this.filesRotateBySize.indexOf(srcPath) > -1) {
+      return;
+    }
 
-  _setFile(logPath, files) {
-    if (!files.has(logPath)) {
-      files.set(logPath, {
-        srcPath: logPath,
-        targetPath: this.getTargeFile(logPath),
-      });
+    if (!files.has(srcPath)) {
+      const targetPath = srcPath + moment().subtract(1, 'days').format('.YYYY-MM-DD');
+      files.set(srcPath, { srcPath, targetPath });
     }
   }
 }
