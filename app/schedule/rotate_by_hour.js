@@ -11,6 +11,7 @@ module.exports = app => {
     schedule: {
       type: 'worker', // only one worker run this task
       cron: '0 * * * *', // run every hour at 00
+      disable: (app.config.logrotator.filesRotateByHour || []).length === 0,
     },
 
     * task() {

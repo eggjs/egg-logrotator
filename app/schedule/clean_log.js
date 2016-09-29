@@ -40,7 +40,7 @@ function* removeExpiredLogFiles(logdir, maxDays, logger) {
   const expriedDate = moment().subtract(maxDays, 'days').startOf('date');
   const names = files.filter(file => {
     const name = path.extname(file).substring(1);
-    if (!/^\d{4}\-\d{2}\-\d{2}$/.test(name)) {
+    if (!/^\d{4}\-\d{2}\-\d{2}/.test(name)) {
       return false;
     }
     const date = moment(name, 'YYYY-MM-DD').startOf('date');

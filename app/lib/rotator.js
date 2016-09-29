@@ -2,7 +2,6 @@
 
 const assert = require('assert');
 const fs = require('mz/fs');
-const debug = require('debug')('egg-logrotator');
 
 
 class Rotator {
@@ -12,7 +11,10 @@ class Rotator {
     assert(this.options.app, 'options.app is required');
     this.app = this.options.app;
     this.logger = this.app.coreLogger;
-    assert(typeof this.getRotateFiles === 'function', 'getRotateFiles should be function');
+  }
+
+  getRotateFiles() {
+    throw new Error('not implement');
   }
 
   * rotate() {
@@ -21,7 +23,7 @@ class Rotator {
     const rotatedFile = [];
     for (const file of files.values()) {
       try {
-        debug('rename from %s to %s', file.srcPath, file.targetPath);
+        this.logger.debug('rename from %s to %s', file.srcPath, file.targetPath);
         yield renameOrDelete(file.srcPath, file.targetPath);
         rotatedFile.push(`${file.srcPath} -> ${file.targetPath}`);
       } catch (err) {
@@ -32,13 +34,13 @@ class Rotator {
 
     if (rotatedFile.length) {
       // tell every one to reload logger
-      this.logger.info('[egg-logrotator] broadcast log-reload to workers');
+      this.logger.info('[egg-logrotator] broadcast log-reload');
       this.app.messenger.sendToApp('log-reload');
       this.app.messenger.sendToAgent('log-reload');
     }
 
     this.logger.info('[egg-logrotator] rotate files success by %s, files %j',
-      this.constructor, rotatedFile);
+      this.constructor.name, rotatedFile);
   }
 }
 

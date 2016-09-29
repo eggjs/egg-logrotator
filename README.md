@@ -59,15 +59,53 @@ By default, LogRotator will rotate all files of `app.loggers` at 00:00 everyday,
 
 Rotate by size with config `filesRotateBySize`. when the file size is greater than `maxFileSize`, it will rename to `.log.1`.
 
-If the file you renamed to is exists, it will increment by 1 (`.log.1` -> `.log.2`), until `maxFiles`. if it reaches the `maxFiles`, then overwrite it.
+If the file you renamed to is exists, it will increment by 1 (`.log.1` -> `.log.2`), until `maxFiles`. if it reaches the `maxFiles`, then overwrite `.log.${maxFiles}`.
 
-It will ignore the file by default when it's in filesRotateBySize.
+Files in `filesRotateBySize` won't be rotated by day.
 
 ### By Hour
 
-Rotate by hour with config `filesRotateByHour`. rotate the file at 00 every hour, the format is `.log.YYYY-MM-HH`.
+Rotate by hour with config `filesRotateByHour`. rotate the file at 00 every hour, the format is `.log.YYYY-MM-DD-HH`.
 
-It will ignore the file by default when it's in filesRotateByHour.
+Files in `filesRotateByHour` won't be rotated by day.
+
+## Customize
+
+You can use `app.LogRotator` to customize.
+
+```js
+// app/schedule/custom.js
+module.exports = app => {
+  const rotator = getRotator(app);
+  return {
+    // https://github.com/eggjs/egg-schedule
+    schedule: {
+      type: 'worker', // only one worker run this task
+      cron: '10 * * * *', // custom cron, or use interval
+    },
+    * task() {
+      yield rotator.rotate();
+    }
+  };
+};
+
+function getRotator(app) {
+  class CustomRotator extends app.LogRotator {
+    // return map that contains a pair of srcPath and targetPath
+    // LogRotator will rename ksrcPath to targetPath
+    * getRotateFiles() {
+      const files = new Map();
+      const srcPath = '/home/admin/foo.log';
+      const targetPath = '/home/admin/foo.log.2016.09.30';
+      files.set(srcPath, { srcPath, targetPath });
+      return files;
+    }
+  }
+  return new CustomRotator({ app });
+}
+```
+
+Define a method called `getRotateFiles`, return a map contains a pair of srcPath and targetPath.
 
 ## Questions & Suggestions
 

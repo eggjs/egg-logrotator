@@ -13,7 +13,6 @@
     "plugin"
   ],
   "dependencies": {
-    "debug": "^2.2.0",
     "moment": "^2.14.1",
     "mz": "^2.4.0"
   },

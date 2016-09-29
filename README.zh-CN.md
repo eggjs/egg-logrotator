@@ -58,9 +58,49 @@ logrotator 默认在每日0点按照时间切割，会将 app.loggers 下所有�
 
 ### 按小时切割
 
-可以配置 `filesRotateBySize` 文件列表按小时切割，每小时0分开始切割，格式为 `.log.YYYY-MM-HH`。
+可以配置 `filesRotateBySize` 文件列表按小时切割，每小时0分开始切割，格式为 `.log.YYYY-MM-DD-HH`。
 
 配置了这个功能的文件不会再按默认切割。
+
+## 自定义
+
+你可以使用 `app.LogRotator` 来自定义切割。
+
+```js
+// app/schedule/custom.js
+module.exports = app => {
+  const rotator = getRotator(app);
+  return {
+    // https://github.com/eggjs/egg-schedule
+    schedule: {
+      type: 'worker', // only one worker run this task
+      cron: '10 * * * *', // custom cron, or use interval
+    },
+    * task() {
+      yield rotator.rotate();
+    }
+  };
+};
+
+function getRotator(app) {
+  class CustomRotator extends app.LogRotator {
+    // return map that contains a pair of srcPath and targetPath
+    // LogRotator will rename srcPath to targetPath
+    // 返回一个 map，其中包含 srcPath 和 targetPath，
+    // LogRotator 会将 srcPath 重命名成 targetPath
+    * getRotateFiles() {
+      const files = new Map();
+      const srcPath = '/home/admin/foo.log';
+      const targetPath = '/home/admin/foo.log.2016.09.30';
+      files.set(srcPath, { srcPath, targetPath });
+      return files;
+    }
+  }
+  return new CustomRotator({ app });
+}
+```
+
+你只需要定义一个 getRotateFiles 方法，指定重命名的 map。
 
 ## Questions & Suggestions
 
