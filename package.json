@@ -31,8 +31,9 @@
     "eslint": "^3.3.1",
     "eslint-config-egg": "^3.1.0",
     "glob": "^7.0.5",
+    "intelli-espower-loader": "^1.0.1",
     "pedding": "1",
-    "should": "^11.1.0",
+    "power-assert": "^1.4.1",
     "supertest": "^2.0.0"
   },
   "engines": {
@@ -40,8 +41,8 @@
   },
   "scripts": {
     "test": "npm run lint && npm run test-local",
-    "test-local": "egg-bin test",
-    "cov": "egg-bin cov",
+    "test-local": "egg-bin test -r intelli-espower-loader",
+    "cov": "egg-bin cov -r intelli-espower-loader",
     "lint": "eslint --ext js --fix test app config *.js",
     "ci": "npm run lint && npm run cov",
     "autod": "autod"

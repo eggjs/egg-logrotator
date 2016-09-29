@@ -1,97 +1,77 @@
 'use strict';
 
+const util = require('util');
 const path = require('path');
 const mm = require('egg-mock');
 const fs = require('fs');
 const glob = require('glob');
 const moment = require('moment');
 const request = require('supertest');
+const assert = require('power-assert');
 
-
-require('should');
 
 describe('test/logrotator.test.js', () => {
   afterEach(mm.restore);
 
-  describe('logrotator', () => {
+  describe('rotate_by_day', () => {
+
     let app;
     before(() => {
       app = mm.app({
         baseDir: 'logrotator-app',
+        cache: false,
       });
       return app.ready();
     });
     after(() => app.close());
+    afterEach(mm.restore);
 
     const schedule = path.join(__dirname, '../app/schedule/rotate_by_file');
     const now = moment().startOf('date');
 
-    it('should rotate log file default', function* () {
-      fs.writeFileSync(path.join(app.config.logger.dir, 'foo.log.0000-00-00'), 'foo');
-      fs.writeFileSync(path.join(app.config.logger.dir,
-        `foo.log.${now.format('YYYY-MM-DD')}`), 'foo');
-      fs.writeFileSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(1, 'days').format('YYYY-MM-DD')}`), 'foo');
-      fs.writeFileSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(7, 'days').format('YYYY-MM-DD')}`), 'foo');
-      fs.writeFileSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(30, 'days').format('YYYY-MM-DD')}`), 'foo');
-      fs.writeFileSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(31, 'days').format('YYYY-MM-DD')}`), 'foo');
-      fs.writeFileSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(32, 'days').format('YYYY-MM-DD')}`), 'foo');
-      fs.writeFileSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`), 'foo');
-      fs.writeFileSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(50, 'days').format('YYYY-MM-DD')}`), 'foo');
-      fs.writeFileSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(6, 'months').format('YYYY-MM-DD')}`), 'foo');
-      fs.writeFileSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(1, 'years').format('YYYY-MM-DD')}`), 'foo');
-      fs.writeFileSync(path.join(app.config.customLogger.bizLogger.file, '..',
-        `biz.log.${now.clone().subtract(1, 'years').format('YYYY-MM-DD')}`), 'foo');
+    it('should export app.LogRotator', function() {
+      assert(app.LogRotator === require('../app/lib/rotator'));
+    });
 
+    it('should throw when not implement getRotateFiles', function* () {
+      const LogRotator = app.LogRotator;
+      try {
+        yield new LogRotator({ app }).rotate();
+        throw new Error('should not throw');
+      } catch (err) {
+        assert(/not implement/.test(err.message));
+      }
+    });
+
+    it('should rotate log file default', function* () {
+      const msg = [];
+      mm(app.coreLogger, 'info', function() {
+        msg.push(util.format.apply(null, arguments));
+      });
       yield app.runSchedule(schedule);
 
       const files = glob.sync(path.join(app.config.logger.dir, '*.log.*'));
-      files.length.should.equal(10);
-      files.filter(name => name.indexOf('foo.log.') > 0).should.length(6);
-      files.forEach(file => {
-        file.should.match(/log.\d{4}-\d{2}-\d{2}$/);
-      });
+      assert(files.length === 3);
+      assert(files.filter(name => name.indexOf('foo.log.') > 0));
+      files.forEach(file => assert(/log.\d{4}-\d{2}-\d{2}$/.test(file)));
 
-      fs.existsSync(path.join(app.config.logger.dir, 'foo.log.0000-00-00')).should.equal(true);
-      fs.existsSync(path.join(app.config.logger.dir,
-        `foo.log.${now.format('YYYY-MM-DD')}`)).should.equal(true);
-      fs.existsSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(1, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
-      fs.existsSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(7, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
-      fs.existsSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(30, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
-      fs.existsSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(31, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
-      // biz log should exists
-      fs.existsSync(path.join(app.config.customLogger.bizLogger.file, '..',
-        `biz.log.${now.clone().subtract(1, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
+      const logDir = app.config.logger.dir;
+      const date = now.clone().subtract(1, 'days').format('YYYY-MM-DD');
+      // assert.equal(fs.existsSync(path.join(logDir, `egg-web.log.${date}`)), true);
+      // assert.equal(fs.existsSync(path.join(logDir, 'egg-web.log')), false);
+      assert.equal(fs.existsSync(path.join(logDir, `egg-agent.log.${date}`)), true);
+      // schedule will not reload logger
+      assert.equal(fs.existsSync(path.join(logDir, 'egg-agent.log')), false);
+      assert.equal(fs.existsSync(path.join(logDir, `logrotator-web.log.${date}`)), true);
+      assert.equal(fs.existsSync(path.join(logDir, 'logrotator-web.log')), false);
+      assert.equal(fs.existsSync(path.join(logDir, `common-error.log.${date}`)), true);
+      assert.equal(fs.existsSync(path.join(logDir, 'common-error.log')), false);
 
-      fs.existsSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(32, 'days').format('YYYY-MM-DD')}`)).should.equal(false);
-      fs.existsSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`)).should.equal(false);
-      fs.existsSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(50, 'days').format('YYYY-MM-DD')}`)).should.equal(false);
-      fs.existsSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(6, 'months').format('YYYY-MM-DD')}`)).should.equal(false);
-      fs.existsSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(1, 'years').format('YYYY-MM-DD')}`)).should.equal(false);
-
-      // should remove 1 years ago biz log file
-      fs.existsSync(path.join(app.config.customLogger.bizLogger.file, '..',
-        `biz.log.${now.clone().subtract(1, 'years').format('YYYY-MM-DD')}`)).should.equal(false);
+      assert(/rotate files success by DayRotator/.test(msg[1]));
 
       // run again should work
       yield app.runSchedule(schedule);
+
     });
 
     it('should error when rename to existed file', function* () {
@@ -107,14 +87,14 @@ describe('test/logrotator.test.js', () => {
       yield app.runSchedule(schedule);
       fs.unlinkSync(file1);
       fs.unlinkSync(file2);
-      msg.should.equal(`[egg-logrotator] logfile ${file2} exists!!!`);
+      assert(msg === `[egg-logrotator] rename ${file1}, found exception: targetFile ${file2} exists!!!`);
     });
 
     it('should error when rename error', function* () {
       const file1 = path.join(app.config.logger.dir, 'foo1.log');
       fs.writeFileSync(file1, 'foo');
       mm(app.coreLogger, 'error', err => {
-        err.message.should.match(/^\[egg-logrotator\] rename logfile .*?, rename error$/);
+        assert(/^\[egg-logrotator\] rename .*?, found exception: rename error$/.test(err.message));
       });
       mm(require('mz/fs'), 'rename', function* () {
         throw new Error('rename error');
@@ -129,8 +109,8 @@ describe('test/logrotator.test.js', () => {
       fs.writeFileSync(path.join(app.config.logger.dir,
         `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`), 'foo');
       yield app.runSchedule(schedule);
-      fs.existsSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
+      assert(fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`)));
     });
 
     it('should mock readdir error', function* () {
@@ -140,46 +120,26 @@ describe('test/logrotator.test.js', () => {
       fs.writeFileSync(path.join(app.config.logger.dir,
         `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`), 'foo');
       yield app.runSchedule(schedule);
-      fs.existsSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
+      assert(fs.existsSync(path.join(app.config.logger.dir,
+        `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`)));
     });
 
-    it('should disable remove expired log files', function* () {
-      mm(app.config.logrotator, 'maxDays', 0);
-      fs.writeFileSync(path.join(app.config.logger.dir, 'foo.log.0000-00-00'), 'foo');
-      fs.writeFileSync(path.join(app.config.logger.dir,
-        `foo.log.${now.format('YYYY-MM-DD')}`), 'foo');
-      fs.writeFileSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(1, 'days').format('YYYY-MM-DD')}`), 'foo');
-      fs.writeFileSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(7, 'days').format('YYYY-MM-DD')}`), 'foo');
-      fs.writeFileSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(31, 'days').format('YYYY-MM-DD')}`), 'foo');
-      fs.writeFileSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(32, 'days').format('YYYY-MM-DD')}`), 'foo');
-      fs.writeFileSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`), 'foo');
-
+    it('should ignore logPath in filesRotateBySize', function* () {
       yield app.runSchedule(schedule);
-
-      fs.existsSync(path.join(app.config.logger.dir, 'foo.log.0000-00-00')).should.equal(true);
-      fs.existsSync(path.join(app.config.logger.dir,
-        `foo.log.${now.format('YYYY-MM-DD')}`)).should.equal(true);
-      fs.existsSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(1, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
-      fs.existsSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(7, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
-      fs.existsSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(31, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
-      fs.existsSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(32, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
-      fs.existsSync(path.join(app.config.logger.dir,
-        `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`)).should.equal(true);
+      const logDir = app.config.logger.dir;
+      const date = now.clone().subtract(1, 'days').format('YYYY-MM-DD');
+      assert(fs.existsSync(path.join(logDir, `size.log.${date}`)) === false);
     });
 
+    it('should ignore logPath in filesRotateByHour', function* () {
+      yield app.runSchedule(schedule);
+      const logDir = app.config.logger.dir;
+      const date = now.clone().subtract(1, 'days').format('YYYY-MM-DD');
+      assert(fs.existsSync(path.join(logDir, `hour.log.${date}`)) === false);
+    });
   });
 
-  describe('logrotator size', () => {
+  describe('rotate_by_size', () => {
     let mockfile;
     let app;
     const schedule = path.join(__dirname, '../app/schedule/rotate_by_size');
@@ -190,14 +150,14 @@ describe('test/logrotator.test.js', () => {
       mockfile = path.join(app.config.logger.dir, 'egg-web.log');
       return app.ready();
     });
-
     after(() => app.close());
+    afterEach(mm.restore);
 
     it('should rotate by size', function* () {
       fs.writeFileSync(mockfile, 'mock log text');
       yield app.runSchedule(schedule);
       yield sleep(100);
-      fs.existsSync(`${mockfile}.1`).should.equal(true);
+      assert(fs.existsSync(`${mockfile}.1`));
     });
 
     it('should keep maxFiles file only', function* () {
@@ -216,14 +176,12 @@ describe('test/logrotator.test.js', () => {
       fs.writeFileSync(mockfile, 'mock log text');
       yield app.runSchedule(schedule);
       yield sleep(100);
-      const files = glob.sync(path.join(app.config.logger.dir, '*.log*'));
-      console.log(files);
-      fs.existsSync(`${mockfile}.1`).should.equal(true);
+      assert(fs.existsSync(`${mockfile}.1`));
       if (process.platform !== 'win32') {
         // test fail on windows
-        fs.existsSync(`${mockfile}.2`).should.equal(true);
+        assert(fs.existsSync(`${mockfile}.2`));
       }
-      fs.existsSync(`${mockfile}.3`).should.equal(false);
+      assert.equal(fs.existsSync(`${mockfile}.3`), false);
     });
 
     it('should error when stat error', function* () {
@@ -236,8 +194,14 @@ describe('test/logrotator.test.js', () => {
         msg = err.message;
       });
       yield app.runSchedule(schedule);
-      msg.should.eql('[egg-logrotator] stat error');
+      assert.equal(msg, '[egg-logrotator] stat error');
+    });
 
+    it('should not great than maxFileSize', function* () {
+      fs.unlinkSync(`${mockfile}.1`);
+      fs.writeFileSync(mockfile, '');
+      yield app.runSchedule(schedule);
+      assert(fs.existsSync(`${mockfile}.1`) === false);
     });
   });
 
@@ -275,15 +239,15 @@ describe('test/logrotator.test.js', () => {
       const logname = moment().subtract(1, 'days').format('.YYYY-MM-DD');
       const logfile1 = path.join(baseDir, 'logs/logger-reload/logger-reload-web.log');
       const content1 = fs.readFileSync(logfile1, 'utf8');
-      content1.should.equal('');
+      assert(content1 === '');
 
       const logfile2 = path.join(baseDir, `logs/logger-reload/logger-reload-web.log${logname}`);
       const content2 = fs.readFileSync(logfile2, 'utf8');
-      content2.should.containEql('GET /');
+      assert(/GET \//.test(content2));
 
       const logfile3 = path.join(baseDir, `logs/logger-reload/egg-agent.log${logname}`);
       const content3 = fs.readFileSync(logfile3, 'utf8');
-      content3.should.containEql('agent warn');
+      assert(/agent warn/.test(content3));
 
       yield request(app.callback())
       .get('/log')
@@ -291,9 +255,58 @@ describe('test/logrotator.test.js', () => {
 
       // will logging to new file
       const content4 = fs.readFileSync(logfile1, 'utf8');
-      content4.should.containEql('GET /');
+      assert(/GET \//.test(content4));
     });
   });
+
+
+  describe('rotate_by_hour', () => {
+
+    let app;
+    before(() => {
+      app = mm.app({
+        baseDir: 'logrotator-app-hour',
+        cache: false,
+      });
+      return app.ready();
+    });
+    after(() => app.close());
+    afterEach(mm.restore);
+
+    const schedule = path.join(__dirname, '../app/schedule/rotate_by_hour');
+
+    it('should rotate log file default', function* () {
+      yield app.runSchedule(schedule);
+
+      const logDir = app.config.logger.dir;
+      const date = moment().subtract(1, 'hours').format('YYYY-MM-DD-HH');
+      assert.equal(fs.existsSync(path.join(logDir, `egg-web.log.${date}`)), true);
+      assert.equal(fs.existsSync(path.join(logDir, 'egg-web.log')), false);
+    });
+  });
+
+  describe('logrotator default', () => {
+    let app;
+    before(() => {
+      app = mm.app({
+        baseDir: 'logrotator-default',
+      });
+      return app.ready();
+    });
+    after(() => app.close());
+    afterEach(mm.restore);
+
+    it('should disable rotate_by_size', function() {
+      const schedule = path.join(__dirname, '../app/schedule/rotate_by_size.js');
+      assert(app.schedules[schedule].schedule.disable);
+    });
+
+    it('should disable rotate_by_hour', function() {
+      const schedule = path.join(__dirname, '../app/schedule/rotate_by_hour.js');
+      assert(app.schedules[schedule].schedule.disable);
+    });
+  });
+
 });
 
 function sleep(ms) {

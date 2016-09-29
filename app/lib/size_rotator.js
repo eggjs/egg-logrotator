@@ -1,0 +1,60 @@
+'use strict';
+
+const fs = require('mz/fs');
+const Rotator = require('./rotator');
+
+
+// rotate log by size, if the size of file over maxFileSize,
+// it will rename from foo.log to foo.log.1
+// if foo.log.1 exists, foo.log.1 will rename to foo.log.2
+class SizeRotator extends Rotator {
+
+  * getRotateFiles() {
+    const files = new Map();
+    const filesRotateBySize = this.app.config.logrotator.filesRotateBySize || [];
+    const maxFileSize = this.app.config.logrotator.maxFileSize;
+    const maxFiles = this.app.config.logrotator.maxFiles;
+    for (const logPath of filesRotateBySize) {
+      const exists = yield fs.exists(logPath);
+      if (!exists) {
+        continue;
+      }
+      try {
+        const stat = yield fs.stat(logPath);
+        if (stat.size >= maxFileSize) {
+          this.logger.info(`[egg-logrotator] file ${logPath} reach the maximum file size, current size: ${stat.size}, max size: ${maxFileSize}`);
+          // delete max log file if exists, otherwise will throw when rename
+          const maxFileName = `${logPath}.${maxFiles}`;
+          const maxExists = yield fs.exists(maxFileName);
+          if (maxExists) {
+            yield fs.unlink(maxFileName);
+          }
+          this._setFile(logPath, files);
+        }
+      } catch (err) {
+        err.message = '[egg-logrotator] ' + err.message;
+        this.logger.error(err);
+      }
+    }
+    return files;
+  }
+
+  _setFile(logPath, files) {
+    const maxFiles = this.app.config.logrotator.maxFiles;
+    if (files.has(logPath)) {
+      return;
+    }
+    // foo.log.2 -> foo.log.3
+    // foo.log.1 -> foo.log.2
+    for (let i = maxFiles - 1; i >= 1; i--) {
+      const srcPath = `${logPath}.${i}`;
+      const targetPath = `${logPath}.${i + 1}`;
+      files.set(srcPath, { srcPath, targetPath });
+    }
+    // foo.log -> foo.log.1
+    files.set(logPath, { srcPath: logPath, targetPath: `${logPath}.1` });
+  }
+
+}
+
+module.exports = SizeRotator;
