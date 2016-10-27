@@ -296,17 +296,40 @@ describe('test/logrotator.test.js', () => {
     after(() => app.close());
     afterEach(mm.restore);
 
-    it('should disable rotate_by_size', function() {
+    it('should disable rotate_by_size', () => {
       const schedule = path.join(__dirname, '../app/schedule/rotate_by_size.js');
       assert(app.schedules[schedule].schedule.disable);
     });
 
-    it('should disable rotate_by_hour', function() {
+    it('should disable rotate_by_hour', () => {
       const schedule = path.join(__dirname, '../app/schedule/rotate_by_hour.js');
       assert(app.schedules[schedule].schedule.disable);
     });
   });
 
+  describe('rotateLogDirs not exist', () => {
+    let app;
+    before(() => {
+      app = mm.app({
+        baseDir: 'noexist-rotator-dir',
+        cache: false,
+      });
+      return app.ready();
+    });
+    after(() => app.close());
+
+    it('should not throw', function* () {
+      const logDir = app.config.logger.dir;
+      const now = moment().startOf('date');
+      const date = now.clone().subtract(1, 'days').format('YYYY-MM-DD');
+      const schedule = path.join(__dirname, '../app/schedule/rotate_by_file');
+      yield app.runSchedule(schedule);
+
+      const content = fs.readFileSync(path.join(logDir, `common-error.log.${date}`), 'utf8');
+      assert.equal(content, '');
+    });
+
+  });
 });
 
 function sleep(ms) {

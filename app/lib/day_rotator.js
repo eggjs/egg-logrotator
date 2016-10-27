@@ -27,7 +27,11 @@ class DayRotator extends Rotator {
     const rotateLogDirs = this.app.config.logger.rotateLogDirs;
     if (rotateLogDirs && rotateLogDirs.length > 0) {
       this.app.deprecate('[egg-logrotator] Do not use app.config.logger.rotateLogDirs, only rotate core loggers and custom loggers');
+
       for (const dir of rotateLogDirs) {
+        const exists = yield fs.exists(dir);
+        if (!exists) continue;
+
         try {
           const names = yield fs.readdir(dir);
           for (const name of names) {
