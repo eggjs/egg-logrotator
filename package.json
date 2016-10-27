@@ -1,6 +1,6 @@
 {
   "name": "egg-logrotator",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "logrotator for egg",
   "eggPlugin": {
     "name": "logrotator",
