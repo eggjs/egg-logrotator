@@ -22,6 +22,13 @@ class DayRotator extends Rotator {
     for (const key in loggers) {
       this._setFile(loggers[key].options.file, files);
     }
+    // Should rotate agent log, because schedule is running under app worker,
+    // agent log is the only differece between app worker and agent worker.
+    // - app worker -> egg-web.log
+    // - agent worker -> egg-agent.log
+    const logDir = this.app.config.logger.dir;
+    const agentLogName = this.app.config.logger.agentLogName;
+    this._setFile(path.join(logDir, agentLogName), files);
 
     // rotateLogDirs is deprecated
     const rotateLogDirs = this.app.config.logger.rotateLogDirs;

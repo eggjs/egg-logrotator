@@ -34,7 +34,10 @@ $ npm i egg-logrotator
 - `plugin.js`
 
 ```js
-exports.logrotator = true;
+exports.logrotator = {
+  enable: true,
+  package: 'egg-logrotator',
+};
 ```
 
 - `config.default.js`

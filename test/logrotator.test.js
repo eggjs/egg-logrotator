@@ -330,6 +330,30 @@ describe('test/logrotator.test.js', () => {
     });
 
   });
+
+  describe('agent logger', () => {
+    let app;
+    before(() => {
+      app = mm.app({
+        baseDir: 'logrotator-agent',
+        cache: false,
+      });
+      return app.ready();
+    });
+    after(() => app.close());
+
+    it('should be rotated', function* () {
+      const logDir = app.config.logger.dir;
+      const now = moment().startOf('date');
+      const date = now.clone().subtract(1, 'days').format('YYYY-MM-DD');
+      const schedule = path.join(__dirname, '../app/schedule/rotate_by_file');
+      yield app.runSchedule(schedule);
+
+      assert(fs.existsSync(path.join(logDir, `my-agent.log.${date}`)));
+    });
+
+  });
+
 });
 
 function sleep(ms) {
