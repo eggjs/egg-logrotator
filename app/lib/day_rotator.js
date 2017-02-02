@@ -3,6 +3,7 @@
 const path = require('path');
 const moment = require('moment');
 const fs = require('mz/fs');
+const debug = require('debug')('egg-logrotator:day_rotator');
 const Rotator = require('./rotator');
 
 
@@ -69,6 +70,7 @@ class DayRotator extends Rotator {
 
     if (!files.has(srcPath)) {
       const targetPath = srcPath + moment().subtract(1, 'days').format('.YYYY-MM-DD');
+      debug('set file %s => %s', srcPath, targetPath);
       files.set(srcPath, { srcPath, targetPath });
     }
   }

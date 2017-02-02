@@ -28,6 +28,9 @@ module.exports = () => {
       hourLogger: {
         file: path.join(__dirname, '../logs', 'logrotator', 'hour.log'),
       },
+      foo1Logger: {
+        file: path.join(__dirname, '../logs', 'logrotator', 'foo1.log'),
+      },
     },
   };
   return exports;

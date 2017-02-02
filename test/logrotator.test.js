@@ -7,7 +7,7 @@ const fs = require('fs');
 const glob = require('glob');
 const moment = require('moment');
 const request = require('supertest');
-const assert = require('power-assert');
+const assert = require('assert');
 
 
 describe('test/logrotator.test.js', () => {
@@ -51,7 +51,7 @@ describe('test/logrotator.test.js', () => {
       yield app.runSchedule(schedule);
 
       const files = glob.sync(path.join(app.config.logger.dir, '*.log.*'));
-      assert(files.length === 3);
+      assert(files.length === 4);
       assert(files.filter(name => name.indexOf('foo.log.') > 0));
       files.forEach(file => assert(/log.\d{4}-\d{2}-\d{2}$/.test(file)));
 
@@ -147,8 +147,10 @@ describe('test/logrotator.test.js', () => {
       app = mm.app({
         baseDir: 'logrotator-app-size',
       });
-      mockfile = path.join(app.config.logger.dir, 'egg-web.log');
       return app.ready();
+    });
+    before(() => {
+      mockfile = path.join(app.config.logger.dir, 'egg-web.log');
     });
     after(() => app.close());
     afterEach(mm.restore);

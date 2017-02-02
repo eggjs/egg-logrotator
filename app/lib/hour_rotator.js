@@ -2,6 +2,7 @@
 
 const moment = require('moment');
 const fs = require('mz/fs');
+const debug = require('debug')('egg-logrotator:hour_rotator');
 const Rotator = require('./rotator');
 
 
@@ -27,6 +28,7 @@ class DayRotator extends Rotator {
   _setFile(srcPath, files) {
     if (!files.has(srcPath)) {
       const targetPath = srcPath + moment().subtract(1, 'hours').format('.YYYY-MM-DD-HH');
+      debug('set file %s => %s', srcPath, targetPath);
       files.set(srcPath, { srcPath, targetPath });
     }
   }
