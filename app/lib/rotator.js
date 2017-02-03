@@ -2,6 +2,7 @@
 
 const assert = require('assert');
 const fs = require('mz/fs');
+const debug = require('debug')('egg-logrotator:rotator');
 
 
 class Rotator {
@@ -23,7 +24,7 @@ class Rotator {
     const rotatedFile = [];
     for (const file of files.values()) {
       try {
-        this.logger.debug('rename from %s to %s', file.srcPath, file.targetPath);
+        debug('rename from %s to %s', file.srcPath, file.targetPath);
         yield renameOrDelete(file.srcPath, file.targetPath);
         rotatedFile.push(`${file.srcPath} -> ${file.targetPath}`);
       } catch (err) {

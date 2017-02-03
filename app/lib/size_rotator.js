@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('mz/fs');
+const debug = require('debug')('egg-logrotator:size_rotator');
 const Rotator = require('./rotator');
 
 
@@ -49,9 +50,11 @@ class SizeRotator extends Rotator {
     for (let i = maxFiles - 1; i >= 1; i--) {
       const srcPath = `${logPath}.${i}`;
       const targetPath = `${logPath}.${i + 1}`;
+      debug('set file %s => %s', srcPath, targetPath);
       files.set(srcPath, { srcPath, targetPath });
     }
     // foo.log -> foo.log.1
+    debug('set file %s => %s', logPath, `${logPath}.1`);
     files.set(logPath, { srcPath: logPath, targetPath: `${logPath}.1` });
   }
 

@@ -5,7 +5,7 @@ const mm = require('egg-mock');
 const fs = require('fs');
 const glob = require('glob');
 const moment = require('moment');
-const assert = require('power-assert');
+const assert = require('assert');
 
 const schedule = path.join(__dirname, '../app/schedule/clean_log');
 const now = moment().startOf('date');
