@@ -16,14 +16,14 @@ describe('test/logrotator.test.js', () => {
   describe('rotate_by_day', () => {
 
     let app;
-    before(() => {
+    beforeEach(() => {
       app = mm.app({
         baseDir: 'logrotator-app',
         cache: false,
       });
       return app.ready();
     });
-    after(() => app.close());
+    afterEach(() => app.close());
     afterEach(mm.restore);
 
     const schedule = path.join(__dirname, '../app/schedule/rotate_by_file');
@@ -71,7 +71,6 @@ describe('test/logrotator.test.js', () => {
 
       // run again should work
       yield app.runSchedule(schedule);
-
     });
 
     it('should error when rename to existed file', function* () {
@@ -260,7 +259,6 @@ describe('test/logrotator.test.js', () => {
       assert(/GET \//.test(content4));
     });
   });
-
 
   describe('rotate_by_hour', () => {
 
