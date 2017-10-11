@@ -218,18 +218,18 @@ describe('test/logrotator.test.js', () => {
     // logging to files
     before(() => {
       return request(app.callback())
-      .get('/log')
-      .expect({
-        method: 'GET',
-        path: '/log',
-      })
-      .expect(200);
+        .get('/log')
+        .expect({
+          method: 'GET',
+          path: '/log',
+        })
+        .expect(200);
     });
     // start rotating
     before(() => {
       return request(app.callback())
-      .get('/rotate')
-      .expect(200);
+        .get('/rotate')
+        .expect(200);
     });
 
     after(() => app.close());
@@ -251,8 +251,8 @@ describe('test/logrotator.test.js', () => {
       assert(/agent warn/.test(content3));
 
       yield request(app.callback())
-      .get('/log')
-      .expect(200);
+        .get('/log')
+        .expect(200);
 
       // will logging to new file
       const content4 = fs.readFileSync(logfile1, 'utf8');
