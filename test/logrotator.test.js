@@ -84,8 +84,6 @@ describe('test/logrotator.test.js', () => {
         msg = err.message;
       });
       yield app.runSchedule(schedule);
-      fs.unlinkSync(file1);
-      fs.unlinkSync(file2);
       assert(msg === `[egg-logrotator] rename ${file1}, found exception: targetFile ${file2} exists!!!`);
     });
 
