@@ -13,25 +13,25 @@
     "plugin"
   ],
   "dependencies": {
-    "debug": "^2.6.0",
-    "moment": "^2.17.1",
-    "mz": "^2.6.0"
+    "debug": "^3.1.0",
+    "moment": "^2.19.0",
+    "mz": "^2.7.0"
   },
   "files": [
-    "agent.js",
     "app",
     "config",
+    "agent.js",
     "app.js"
   ],
   "devDependencies": {
-    "autod": "^2.7.1",
-    "egg": "^0.9.0",
-    "egg-bin": "^2.0.2",
-    "egg-ci": "^1.1.0",
-    "egg-mock": "^2.3.1",
-    "eslint": "^3.14.1",
-    "eslint-config-egg": "^3.2.0",
-    "glob": "^7.1.1",
+    "autod": "^2.9.0",
+    "egg": "^1.9.0",
+    "egg-bin": "^4.3.5",
+    "egg-ci": "^1.8.0",
+    "egg-mock": "^3.13.0",
+    "eslint": "^4.8.0",
+    "eslint-config-egg": "^5.1.1",
+    "glob": "^7.1.2",
     "pedding": "1",
     "supertest": "^3.0.0"
   },
@@ -40,10 +40,11 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "test": "npm run lint -- --fix && npm run test-local",
+    "pkgfiles": "egg-bin pkgfiles",
+    "test": "npm run lint -- --fix && npm run pkgfiles && npm run test-local",
     "test-local": "egg-bin test",
     "cov": "egg-bin cov",
-    "ci": "npm run lint && npm run cov",
+    "ci": "npm run lint && npm run pkgfiles -- --check && npm run cov",
     "autod": "autod"
   },
   "ci": {

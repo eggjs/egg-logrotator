@@ -16,14 +16,14 @@ describe('test/logrotator.test.js', () => {
   describe('rotate_by_day', () => {
 
     let app;
-    before(() => {
+    beforeEach(() => {
       app = mm.app({
         baseDir: 'logrotator-app',
         cache: false,
       });
       return app.ready();
     });
-    after(() => app.close());
+    afterEach(() => app.close());
     afterEach(mm.restore);
 
     const schedule = path.join(__dirname, '../app/schedule/rotate_by_file');
@@ -71,7 +71,6 @@ describe('test/logrotator.test.js', () => {
 
       // run again should work
       yield app.runSchedule(schedule);
-
     });
 
     it('should error when rename to existed file', function* () {
@@ -85,8 +84,6 @@ describe('test/logrotator.test.js', () => {
         msg = err.message;
       });
       yield app.runSchedule(schedule);
-      fs.unlinkSync(file1);
-      fs.unlinkSync(file2);
       assert(msg === `[egg-logrotator] rename ${file1}, found exception: targetFile ${file2} exists!!!`);
     });
 
@@ -219,18 +216,18 @@ describe('test/logrotator.test.js', () => {
     // logging to files
     before(() => {
       return request(app.callback())
-      .get('/log')
-      .expect({
-        method: 'GET',
-        path: '/log',
-      })
-      .expect(200);
+        .get('/log')
+        .expect({
+          method: 'GET',
+          path: '/log',
+        })
+        .expect(200);
     });
     // start rotating
     before(() => {
       return request(app.callback())
-      .get('/rotate')
-      .expect(200);
+        .get('/rotate')
+        .expect(200);
     });
 
     after(() => app.close());
@@ -252,15 +249,14 @@ describe('test/logrotator.test.js', () => {
       assert(/agent warn/.test(content3));
 
       yield request(app.callback())
-      .get('/log')
-      .expect(200);
+        .get('/log')
+        .expect(200);
 
       // will logging to new file
       const content4 = fs.readFileSync(logfile1, 'utf8');
       assert(/GET \//.test(content4));
     });
   });
-
 
   describe('rotate_by_hour', () => {
 
