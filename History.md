@@ -1,4 +1,13 @@
 
+2.3.0 / 2017-11-02
+==================
+
+**features**
+  * [[`bd3c95f`](http://github.com/eggjs/egg-logrotator/commit/bd3c95f651783ae8ccb167d1ad1e8c9e8590440c)] - feat: support custom hour delimiter (#12) (hui <<kangpangpang@gmail.com>>)
+
+**others**
+  * [[`5e6c563`](http://github.com/eggjs/egg-logrotator/commit/5e6c563b0cf34fafe6eab3a1f9f4a084c8bd5a28)] - test: upgrade dependencies (#11) (Haoliang Gao <<sakura9515@gmail.com>>)
+
 2.2.3 / 2017-06-04
 ==================
 
