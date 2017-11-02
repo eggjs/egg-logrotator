@@ -25,9 +25,13 @@ class DayRotator extends Rotator {
     return files;
   }
 
+  get hourDelimiter() {
+    return this.app.config.logrotator.hourDelimiter;
+  }
+
   _setFile(srcPath, files) {
     if (!files.has(srcPath)) {
-      const targetPath = srcPath + moment().subtract(1, 'hours').format('.YYYY-MM-DD-HH');
+      const targetPath = srcPath + moment().subtract(1, 'hours').format(`.YYYY-MM-DD${this.hourDelimiter}HH`);
       debug('set file %s => %s', srcPath, targetPath);
       files.set(srcPath, { srcPath, targetPath });
     }

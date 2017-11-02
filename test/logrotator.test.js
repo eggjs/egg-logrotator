@@ -283,6 +283,30 @@ describe('test/logrotator.test.js', () => {
     });
   });
 
+  describe('rotate_by_hour, use custom hourDelimiter', () => {
+    let app;
+    before(() => {
+      app = mm.app({
+        baseDir: 'logrotator-app-hour-custom_hourdelimiter',
+        cache: false,
+      });
+      return app.ready();
+    });
+    after(() => app.close());
+    afterEach(mm.restore);
+
+    const schedule = path.join(__dirname, '../app/schedule/rotate_by_hour');
+
+    it('should rotate log file default', function* () {
+      yield app.runSchedule(schedule);
+
+      const logDir = app.config.logger.dir;
+      const date = moment().subtract(1, 'hours').format('YYYY-MM-DD_HH');
+      assert.equal(fs.existsSync(path.join(logDir, `egg-web.log.${date}`)), true);
+      assert.equal(fs.existsSync(path.join(logDir, 'egg-web.log')), false);
+    });
+  });
+
   describe('logrotator default', () => {
     let app;
     before(() => {
