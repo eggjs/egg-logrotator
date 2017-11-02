@@ -14,10 +14,6 @@ class DayRotator extends Rotator {
     const files = new Map();
     const filesRotateByHour = this.app.config.logrotator.filesRotateByHour || [];
 
-    if (this.app.config.logrotator.hourDelimiter) {
-      this.hourDelimiter = this.app.config.logrotator.hourDelimiter;
-    }
-
     for (const logPath of filesRotateByHour) {
       const exists = yield fs.exists(logPath);
       if (!exists) {
@@ -30,11 +26,7 @@ class DayRotator extends Rotator {
   }
 
   get hourDelimiter() {
-    return this._hourDelimiter || '-';
-  }
-
-  set hourDelimiter(hourDelimiter) {
-    this._hourDelimiter = hourDelimiter;
+    return this.app.config.logrotator.hourDelimiter;
   }
 
   _setFile(srcPath, files) {

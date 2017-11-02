@@ -14,6 +14,7 @@
 exports.logrotator = {
   // for rotate_by_hour
   filesRotateByHour: null,
+  hourDelimiter: '-',
   // for rotate_by_size
   filesRotateBySize: null,
   maxFileSize: 50 * 1024 * 1024,
