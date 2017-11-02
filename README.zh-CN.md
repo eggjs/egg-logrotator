@@ -36,7 +36,7 @@ exports.logrotator = true;
 // 如果有需要按照文件大小切割的日志，在这里配置
 exports.logrotator = {
   filesRotateByHour: [],           // 需要按小时切割的文件
-  hourDelimiter: '_',              // 按照小时切割的文件, 小时部分的分隔符.
+  hourDelimiter: '-',              // 按照小时切割的文件, 小时部分的分隔符.
   filesRotateBySize: [],           // 需要按大小切割的文件，其他日志文件仍按照通常方式切割
   maxFileSize: 50 * 1024 * 1024,   // 最大文件大小，默认为50m
   maxFiles: 10,                    // 按大小切割时，文件最大切割的份数

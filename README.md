@@ -46,7 +46,7 @@ exports.logrotator = {
 // if any files need rotate by file size, config here
 exports.logrotator = {
   filesRotateByHour: [],           // list of files that will be rotated by hour
-  hourDelimiter: '_',              // rotate the file by hour use specified delimiter
+  hourDelimiter: '-',              // rotate the file by hour use specified delimiter
   filesRotateBySize: [],           // list of files that will be rotated by size
   maxFileSize: 50 * 1024 * 1024,   // Max file size to judge if any file need rotate
   maxFiles: 10,                    // pieces rotate by size
