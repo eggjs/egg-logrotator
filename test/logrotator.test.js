@@ -185,7 +185,7 @@ describe('test/logrotator.test.js', () => {
 
     it('should error when stat error', function* () {
       fs.writeFileSync(mockfile, 'mock log text');
-      mm(require('mz/fs'), 'stat', function* () {
+      mm(require('mz/fs'), 'stat', async () => {
         throw new Error('stat error');
       });
       let msg = '';

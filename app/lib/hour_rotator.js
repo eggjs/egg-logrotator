@@ -10,12 +10,12 @@ const Rotator = require('./rotator');
 // rename from foo.log to foo.log.YYYY-MM-DD-HH
 class DayRotator extends Rotator {
 
-  * getRotateFiles() {
+  async getRotateFiles() {
     const files = new Map();
     const filesRotateByHour = this.app.config.logrotator.filesRotateByHour || [];
 
     for (const logPath of filesRotateByHour) {
-      const exists = yield fs.exists(logPath);
+      const exists = await fs.exists(logPath);
       if (!exists) {
         continue;
       }

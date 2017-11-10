@@ -18,14 +18,14 @@ class Rotator {
     throw new Error('not implement');
   }
 
-  * rotate() {
-    const files = yield this.getRotateFiles();
+  async rotate() {
+    const files = await this.getRotateFiles();
     assert(files instanceof Map, 'getRotateFiles should return a Map');
     const rotatedFile = [];
     for (const file of files.values()) {
       try {
         debug('rename from %s to %s', file.srcPath, file.targetPath);
-        yield renameOrDelete(file.srcPath, file.targetPath);
+        await renameOrDelete(file.srcPath, file.targetPath);
         rotatedFile.push(`${file.srcPath} -> ${file.targetPath}`);
       } catch (err) {
         err.message = `[egg-logrotator] rename ${file.srcPath}, found exception: ` + err.message;
@@ -48,20 +48,20 @@ class Rotator {
 module.exports = Rotator;
 
 // rename from srcPath to targetPath, for example foo.log.1 > foo.log.2
-function* renameOrDelete(srcPath, targetPath) {
+async function renameOrDelete(srcPath, targetPath) {
   if (srcPath === targetPath) {
     return;
   }
-  const srcExists = yield fs.exists(srcPath);
+  const srcExists = await fs.exists(srcPath);
   if (!srcExists) {
     return;
   }
-  const targetExists = yield fs.exists(targetPath);
+  const targetExists = await fs.exists(targetPath);
   // if target file exists, then throw
   // because the target file always be renamed first.
   if (targetExists) {
     const err = new Error(`targetFile ${targetPath} exists!!!`);
     throw err;
   }
-  yield fs.rename(srcPath, targetPath);
+  await fs.rename(srcPath, targetPath);
 }

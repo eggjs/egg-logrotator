@@ -87,8 +87,8 @@ module.exports = app => {
       type: 'worker', // only one worker run this task
       cron: '10 * * * *', // custom cron, or use interval
     },
-    * task() {
-      yield rotator.rotate();
+    async task() {
+      await rotator.rotate();
     }
   };
 };
@@ -97,7 +97,7 @@ function getRotator(app) {
   class CustomRotator extends app.LogRotator {
     // return map that contains a pair of srcPath and targetPath
     // LogRotator will rename ksrcPath to targetPath
-    * getRotateFiles() {
+    async getRotateFiles() {
       const files = new Map();
       const srcPath = '/home/admin/foo.log';
       const targetPath = '/home/admin/foo.log.2016.09.30';
@@ -118,4 +118,3 @@ Please open an issue [here](https://github.com/eggjs/egg/issues).
 ## License
 
 [MIT](https://github.com/eggjs/egg-logrotator/blob/master/LICENSE)
-

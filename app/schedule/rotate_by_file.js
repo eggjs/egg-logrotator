@@ -13,8 +13,8 @@ module.exports = app => {
       cron: '0 0 * * *', // run every day at 00:00
     },
 
-    * task() {
-      yield rotator.rotate();
+    async task() {
+      await rotator.rotate();
     },
 
   };
