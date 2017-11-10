@@ -11,7 +11,7 @@ module.exports = app => ({
     cron: '0 0 * * *', // run every day at 00:00
   },
 
-  * task() {
+  async task() {
     const logger = app.coreLogger;
     const logDirs = [];
     for (const key in app.loggers) {
@@ -24,7 +24,8 @@ module.exports = app => ({
     const maxDays = app.config.logrotator.maxDays;
     if (maxDays && maxDays > 0) {
       try {
-        yield logDirs.map(logdir => removeExpiredLogFiles(logdir, maxDays, logger));
+        const tasks = logDirs.map(logdir => removeExpiredLogFiles(logdir, maxDays, logger));
+        await Promise.all(tasks);
       } catch (err) {
         logger.error(err);
       }
@@ -35,8 +36,8 @@ module.exports = app => ({
 });
 
 // remove expired log files: xxx.log.YYYY-MM-DD
-function* removeExpiredLogFiles(logdir, maxDays, logger) {
-  const files = yield fs.readdir(logdir);
+async function removeExpiredLogFiles(logdir, maxDays, logger) {
+  const files = await fs.readdir(logdir);
   const expriedDate = moment().subtract(maxDays, 'days').startOf('date');
   const names = files.filter(file => {
     const name = path.extname(file).substring(1);
@@ -55,13 +56,12 @@ function* removeExpiredLogFiles(logdir, maxDays, logger) {
 
   logger.info(`[egg-logrotator] start remove ${logdir} files: ${names.join(', ')}`);
 
-  yield names.map(name => function* () {
+  await Promise.all(names.map(name => {
     const logfile = path.join(logdir, name);
-    try {
-      yield fs.unlink(logfile);
-    } catch (err) {
-      err.message = `[egg-logrotator] remove logfile ${logfile} error, ${err.message}`;
-      logger.error(err);
-    }
-  });
+    return fs.unlink(logfile)
+      .catch(err => {
+        err.message = `[egg-logrotator] remove logfile ${logfile} error, ${err.message}`;
+        logger.error(err);
+      });
+  }));
 }

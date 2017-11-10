@@ -14,8 +14,8 @@ module.exports = app => {
       disable: (app.config.logrotator.filesRotateBySize || []).length === 0,
     },
 
-    * task() {
-      yield rotator.rotate();
+    async task() {
+      await rotator.rotate();
     },
   };
 };

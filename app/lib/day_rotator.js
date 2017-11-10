@@ -17,7 +17,7 @@ class DayRotator extends Rotator {
     this.filesRotateByHour = this.app.config.logrotator.filesRotateByHour || [];
   }
 
-  * getRotateFiles() {
+  async getRotateFiles() {
     const files = new Map();
     const loggers = this.app.loggers;
     for (const key in loggers) {
@@ -37,11 +37,11 @@ class DayRotator extends Rotator {
       this.app.deprecate('[egg-logrotator] Do not use app.config.logger.rotateLogDirs, only rotate core loggers and custom loggers');
 
       for (const dir of rotateLogDirs) {
-        const exists = yield fs.exists(dir);
+        const exists = await fs.exists(dir);
         if (!exists) continue;
 
         try {
-          const names = yield fs.readdir(dir);
+          const names = await fs.readdir(dir);
           for (const name of names) {
             if (!name.endsWith('.log')) {
               continue;
