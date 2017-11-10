@@ -1,4 +1,10 @@
 
+3.0.0 / 2017-11-10
+==================
+
+**others**
+  * [[`6b4e6e5`](http://github.com/eggjs/egg-logrotater/commit/6b4e6e58ee5aab5310059bde59f3c89fdba2d3ae)] - refactor: use async function and support egg@2 (#13) (Yiyu He <<dead_horse@qq.com>>)
+
 2.3.0 / 2017-11-02
 ==================
 
