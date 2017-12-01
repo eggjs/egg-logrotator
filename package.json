@@ -10,11 +10,14 @@
   },
   "keywords": [
     "egg",
-    "plugin"
+    "eggPlugin",
+    "egg-plugin",
+    "logger",
+    "logrotator"
   ],
   "dependencies": {
     "debug": "^3.1.0",
-    "moment": "^2.19.1",
+    "moment": "^2.19.3",
     "mz": "^2.7.0"
   },
   "files": [
@@ -24,12 +27,12 @@
     "app.js"
   ],
   "devDependencies": {
-    "autod": "^2.10.1",
-    "egg": "next",
-    "egg-bin": "^4.3.5",
+    "autod": "^3.0.1",
+    "egg": "^2.0.0",
+    "egg-bin": "^4.3.6",
     "egg-ci": "^1.8.0",
     "egg-mock": "^3.13.1",
-    "eslint": "^4.10.0",
+    "eslint": "^4.12.1",
     "eslint-config-egg": "^5.1.1",
     "glob": "^7.1.2",
     "pedding": "1",
