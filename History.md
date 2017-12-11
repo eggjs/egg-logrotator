@@ -1,4 +1,10 @@
 
+2.3.1 / 2017-12-11
+==================
+
+**fixes**
+  * [[`b6f75bf`](http://github.com/eggjs/egg-logrotator/commit/b6f75bfab6bed0e5731cc5aedd9b1806588756ec)] - fix: split file at 00:00:01 && update deps (#16) (TZ | 天猪 <<atian25@qq.com>>)
+
 2.3.0 / 2017-11-02
 ==================
 
