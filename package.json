@@ -50,6 +50,9 @@
   "ci": {
     "version": "6, 7"
   },
+  "publishConfig": {
+    "tag": "release-2.x"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/eggjs/egg-logrotator.git"
