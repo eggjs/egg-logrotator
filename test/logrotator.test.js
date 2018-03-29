@@ -33,6 +33,10 @@ describe('test/logrotator.test.js', () => {
       assert(app.LogRotator === require('../app/lib/rotator'));
     });
 
+    it('should export agent.LogRotator', function() {
+      assert(app.agent.LogRotator === require('../app/lib/rotator'));
+    });
+
     it('should throw when not implement getRotateFiles', function* () {
       const LogRotator = app.LogRotator;
       try {
