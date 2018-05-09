@@ -51,7 +51,7 @@ describe('test/logrotator.test.js', () => {
       yield app.runSchedule(schedule);
 
       const files = glob.sync(path.join(app.config.logger.dir, '*.log.*'));
-      assert(files.length > 4);
+      assert(files.length === 4);
       assert(files.filter(name => name.indexOf('foo.log.') > 0));
       files.forEach(file => assert(/log.\d{4}-\d{2}-\d{2}$/.test(file)));
 
