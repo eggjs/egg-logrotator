@@ -1,4 +1,10 @@
 
+2.3.2 / 2018-05-09
+==================
+
+**fixes**
+  * [[`3acae72`](http://github.com/eggjs/egg-logrotator/commit/3acae720194ea136a72530be23200804fd4a9319)] - fix: support json files (#17) (Hongcai Deng <<admin@dhchouse.com>>)
+
 2.3.1 / 2017-12-11
 ==================
 

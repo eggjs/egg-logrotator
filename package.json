@@ -1,6 +1,6 @@
 {
   "name": "egg-logrotator",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "description": "logrotator for egg",
   "eggPlugin": {
     "name": "logrotator",
@@ -51,7 +51,7 @@
     "version": "6, 7"
   },
   "publishConfig": {
-    "tag": "release-2.x"
+    "tag": "latest-2"
   },
   "repository": {
     "type": "git",
