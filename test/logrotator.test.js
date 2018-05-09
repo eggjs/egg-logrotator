@@ -376,6 +376,52 @@ describe('test/logrotator.test.js', () => {
 
   });
 
+  describe('json logger', () => {
+    let app;
+    before(() => {
+      app = mm.app({
+        baseDir: 'logrotator-json-format',
+        cache: false,
+      });
+      return app.ready();
+    });
+    after(() => app.close());
+
+    it('should be rotated by day', function* () {
+      const logDir = app.config.logger.dir;
+      const now = moment().startOf('date');
+      const date = now.clone().subtract(1, 'days').format('YYYY-MM-DD');
+      const schedule = path.join(__dirname, '../app/schedule/rotate_by_file');
+      yield app.runSchedule(schedule);
+
+      assert(fs.existsSync(path.join(logDir, `day.log.${date}`)));
+      assert(fs.existsSync(path.join(logDir, `day.json.log.${date}`)));
+    });
+
+    it('should be rotated by hour', function* () {
+      const logDir = app.config.logger.dir;
+      const date = moment().subtract(1, 'hours').format('YYYY-MM-DD-HH');
+      const schedule = path.join(__dirname, '../app/schedule/rotate_by_hour');
+      yield app.runSchedule(schedule);
+
+      assert(fs.existsSync(path.join(logDir, `hour.log.${date}`)));
+      assert(fs.existsSync(path.join(logDir, `hour.json.log.${date}`)));
+    });
+
+    it('should be rotated by size', function* () {
+      app.getLogger('sizeLogger').info('size');
+      // wait flush
+      yield sleep(1000);
+
+      const logDir = app.config.logger.dir;
+      const schedule = path.join(__dirname, '../app/schedule/rotate_by_size');
+      yield app.runSchedule(schedule);
+
+      assert(fs.existsSync(path.join(logDir, 'size.log.1')));
+      assert(fs.existsSync(path.join(logDir, 'size.json.log.1')));
+    });
+  });
+
 });
 
 function sleep(ms) {
