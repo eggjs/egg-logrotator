@@ -15,9 +15,11 @@ module.exports = app => ({
     const logger = app.coreLogger;
     const logDirs = [];
     for (const key in app.loggers) {
-      const logDir = path.dirname(app.loggers[key].options.file);
-      if (logDirs.indexOf(logDir) === -1) {
-        logDirs.push(logDir);
+      if (app.loggers.hasOwnProperty(key)) {
+        const logDir = path.dirname(app.loggers[key].options.file);
+        if (logDirs.indexOf(logDir) === -1) {
+          logDirs.push(logDir);
+        }
       }
     }
 
