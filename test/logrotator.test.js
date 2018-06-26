@@ -138,6 +138,15 @@ describe('test/logrotator.test.js', () => {
       const date = now.clone().subtract(1, 'days').format('YYYY-MM-DD');
       assert(fs.existsSync(path.join(logDir, `hour.log.${date}`)) === false);
     });
+
+    it('should not nerror when Map extend', function* () {
+      /* eslint-disable */
+      Map.prototype.test = function() {
+        console.log('test Map extend');
+      };
+      /* eslint-enable */
+      yield app.runSchedule(schedule);
+    });
   });
 
   describe('rotate_by_size', () => {
