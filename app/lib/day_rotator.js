@@ -21,10 +21,12 @@ class DayRotator extends Rotator {
     const files = new Map();
     const loggers = this.app.loggers;
     for (const key in loggers) {
-      const logger = loggers[key];
-      this._setFile(logger.options.file, files);
-      if (logger.options.jsonFile) {
-        this._setFile(logger.options.jsonFile, files);
+      if (loggers.hasOwnProperty(key)) {
+        const logger = loggers[key];
+        this._setFile(logger.options.file, files);
+        if (logger.options.jsonFile) {
+          this._setFile(logger.options.jsonFile, files);
+        }
       }
     }
 
