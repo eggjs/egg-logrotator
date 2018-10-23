@@ -6,7 +6,6 @@ const mm = require('egg-mock');
 const fs = require('fs');
 const glob = require('glob');
 const moment = require('moment');
-const request = require('supertest');
 const assert = require('assert');
 
 
@@ -228,7 +227,7 @@ describe('test/logrotator.test.js', () => {
     });
     // logging to files
     before(() => {
-      return request(app.callback())
+      return app.httpRequest()
         .get('/log')
         .expect({
           method: 'GET',
@@ -238,7 +237,7 @@ describe('test/logrotator.test.js', () => {
     });
     // start rotating
     before(() => {
-      return request(app.callback())
+      return app.httpRequest()
         .get('/rotate')
         .expect(200);
     });
@@ -261,7 +260,7 @@ describe('test/logrotator.test.js', () => {
       const content3 = fs.readFileSync(logfile3, 'utf8');
       assert(/agent warn/.test(content3));
 
-      yield request(app.callback())
+      yield app.httpRequest()
         .get('/log')
         .expect(200);
 

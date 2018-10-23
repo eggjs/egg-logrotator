@@ -39,6 +39,10 @@ module.exports = app => ({
 
 // remove expired log files: xxx.log.YYYY-MM-DD
 async function removeExpiredLogFiles(logdir, maxDays, logger) {
+  // ignore not exists dir
+  const exists = await fs.exists(logdir);
+  if (!exists) return;
+
   const files = await fs.readdir(logdir);
   const expriedDate = moment().subtract(maxDays, 'days').startOf('date');
   const names = files.filter(file => {

@@ -13,7 +13,6 @@ module.exports = {
     'autod',
     'eslint',
     'eslint-config-egg',
-    'supertest',
   ],
   exclude: [
     './test/fixtures',

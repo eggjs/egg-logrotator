@@ -30,7 +30,6 @@ $ npm i egg-logrotator
 
 ## Usage
 
-
 - `plugin.js`
 
 ```js
