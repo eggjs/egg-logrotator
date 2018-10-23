@@ -186,17 +186,21 @@ describe('test/clean_log.test.js', () => {
       `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`)));
   });
 
-  it('should ignore when log dir not exists', function* () {
-    let message;
-    mm(app.coreLogger, 'error', err => (message = err.message));
+  // windows can't remove un close file, ignore it
+  if (process.platform !== 'win32') {
+    it('should ignore when log dir not exists', function* () {
+      let message;
+      mm(app.coreLogger, 'error', err => (message = err.message));
 
-    const customLoggerDir = path.dirname(app.config.customLogger.bizLogger.file);
-    fs.writeFileSync(path.join(customLoggerDir,
-      `biz.log.${now.clone().subtract(1, 'years').format('YYYY-MM-DD')}`), 'foo');
-    yield rimraf(customLoggerDir);
+      const customLoggerDir = path.join(app.config.customLogger.bizLogger.file, '..');
+      const logfile = path.join(customLoggerDir,
+        `biz.log.${now.clone().subtract(1, 'years').format('YYYY-MM-DD')}`);
+      fs.writeFileSync(logfile, 'foo');
+      yield rimraf(customLoggerDir);
 
-    yield app.runSchedule(schedule);
-    assert(!message);
-    yield mkdirp(customLoggerDir);
-  });
+      yield app.runSchedule(schedule);
+      assert(!message);
+      yield mkdirp(customLoggerDir);
+    });
+  }
 });

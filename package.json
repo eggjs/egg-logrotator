@@ -51,6 +51,11 @@
     "autod": "autod"
   },
   "ci": {
+    "type": "travis",
+    "os": {
+      "travis": "linux, osx, windows"
+    },
+    "nyc": true,
     "version": "8, 10",
     "license": {
       "year": 2016
