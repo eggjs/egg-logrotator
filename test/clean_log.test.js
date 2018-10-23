@@ -6,6 +6,8 @@ const fs = require('fs');
 const glob = require('glob');
 const moment = require('moment');
 const assert = require('assert');
+const rimraf = require('mz-modules/rimraf');
+const mkdirp = require('mz-modules/mkdirp');
 
 const schedule = path.join(__dirname, '../app/schedule/clean_log');
 const now = moment().startOf('date');
@@ -183,4 +185,22 @@ describe('test/clean_log.test.js', () => {
     assert(fs.existsSync(path.join(logDir,
       `foo.log.${now.clone().subtract(33, 'days').format('YYYY-MM-DD')}`)));
   });
+
+  // windows can't remove un close file, ignore it
+  if (process.platform !== 'win32') {
+    it('should ignore when log dir not exists', function* () {
+      let message;
+      mm(app.coreLogger, 'error', err => (message = err.message));
+
+      const customLoggerDir = path.join(app.config.customLogger.bizLogger.file, '..');
+      const logfile = path.join(customLoggerDir,
+        `biz.log.${now.clone().subtract(1, 'years').format('YYYY-MM-DD')}`);
+      fs.writeFileSync(logfile, 'foo');
+      yield rimraf(customLoggerDir);
+
+      yield app.runSchedule(schedule);
+      assert(!message);
+      yield mkdirp(customLoggerDir);
+    });
+  }
 });
