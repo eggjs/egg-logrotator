@@ -1,4 +1,11 @@
 
+3.0.4 / 2018-10-24
+==================
+
+**fixes**
+  * [[`9c0f71f`](http://github.com/eggjs/egg-logrotator/commit/9c0f71f64ee3d78a79983f96211a58ab8b4e3def)] - fix: ignore not exists logdir (#21) (fengmk2 <<fengmk2@gmail.com>>)
+  * [[`3c8786d`](http://github.com/eggjs/egg-logrotator/commit/3c8786da71c83526d6349ad4e90fb2aa992cda4b)] - fix: in for in loop add hasOwnProperty filter (#20) (AllenZeng <<zengjuncm@gmail.com>>)
+
 3.0.3 / 2018-03-29
 ==================
 
