@@ -1,4 +1,10 @@
 
+3.0.5 / 2018-12-04
+==================
+
+**fixes**
+  * [[`3371e60`](http://github.com/eggjs/egg-logrotator/commit/3371e609c29385ef73093abb9cbdcccc88e8f9b0)] - fix: allow 2 minutes deviation on schedule cron (#22) (fengmk2 <<fengmk2@gmail.com>>)
+
 3.0.4 / 2018-10-24
 ==================
 
