@@ -74,7 +74,11 @@ class DayRotator extends Rotator {
     }
 
     if (!files.has(srcPath)) {
-      const targetPath = srcPath + moment().subtract(1, 'days').format('.YYYY-MM-DD');
+      // allow 2 minutes deviation
+      const targetPath = srcPath + moment()
+        .subtract(23, 'hours')
+        .subtract(58, 'minutes')
+        .format('.YYYY-MM-DD');
       debug('set file %s => %s', srcPath, targetPath);
       files.set(srcPath, { srcPath, targetPath });
     }
