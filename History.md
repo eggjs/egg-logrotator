@@ -1,4 +1,10 @@
 
+3.0.6 / 2019-03-06
+==================
+
+**fixes**
+  * [[`4f52df7`](http://github.com/eggjs/egg-logrotator/commit/4f52df7ff5efc963d5459321ba738ea17defba6d)] - fix: clean log should use transport options file (#24) (Hongcai Deng <<admin@dhchouse.com>>)
+
 3.0.5 / 2018-12-04
 ==================
 
