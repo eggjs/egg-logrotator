@@ -8,6 +8,7 @@ const moment = require('moment');
 const assert = require('assert');
 const rimraf = require('mz-modules/rimraf');
 const mkdirp = require('mz-modules/mkdirp');
+const FileTransport = require('egg-logger').FileTransport;
 
 const schedule = path.join(__dirname, '../app/schedule/clean_log');
 const now = moment().startOf('date');
@@ -17,15 +18,16 @@ describe('test/clean_log.test.js', () => {
 
   let app;
   let logDir;
-  before(() => {
+  before(async () => {
     app = mm.app({
       baseDir: 'clean-log',
       cache: false,
     });
-    return app.ready();
-  });
-  before(() => {
+    await app.ready();
     logDir = app.config.logger.dir;
+    app.loggers.get('bizLogger').set('anotherFile', new FileTransport({
+      file: path.join(app.config.customLogger.bizLogger.file, '..', 'another-biz.log'),
+    }));
   });
   after(() => app.close());
 
@@ -41,6 +43,10 @@ describe('test/clean_log.test.js', () => {
       `foo.log.${now.clone().subtract(30, 'days').format('YYYY-MM-DD')}`), 'foo');
     fs.writeFileSync(path.join(logDir,
       `foo.log.${now.clone().subtract(31, 'days').format('YYYY-MM-DD')}`), 'foo');
+    fs.writeFileSync(path.join(app.config.customLogger.bizLogger.file, '..',
+      `biz.log.${now.clone().subtract(31, 'days').format('YYYY-MM-DD')}`), 'foo');
+    fs.writeFileSync(path.join(app.config.customLogger.bizLogger.file, '..',
+      `another-biz.log.${now.clone().subtract(31, 'days').format('YYYY-MM-DD')}`), 'foo');
     fs.writeFileSync(path.join(logDir,
       `foo.log.${now.clone().subtract(32, 'days').format('YYYY-MM-DD')}`), 'foo');
     fs.writeFileSync(path.join(logDir,
@@ -53,6 +59,8 @@ describe('test/clean_log.test.js', () => {
       `foo.log.${now.clone().subtract(1, 'years').format('YYYY-MM-DD')}`), 'foo');
     fs.writeFileSync(path.join(app.config.customLogger.bizLogger.file, '..',
       `biz.log.${now.clone().subtract(1, 'years').format('YYYY-MM-DD')}`), 'foo');
+    fs.writeFileSync(path.join(app.config.customLogger.bizLogger.file, '..',
+      `another-biz.log.${now.clone().subtract(1, 'years').format('YYYY-MM-DD')}`), 'foo');
 
     yield app.runSchedule(schedule);
 
@@ -77,6 +85,12 @@ describe('test/clean_log.test.js', () => {
     filepath = `foo.log.${now.clone().subtract(31, 'days').format('YYYY-MM-DD')}`;
     assert(fs.existsSync(path.join(logDir, filepath)));
 
+    assert(fs.existsSync(path.join(app.config.customLogger.bizLogger.file, '..',
+      `biz.log.${now.clone().subtract(31, 'days').format('YYYY-MM-DD')}`)));
+
+    assert(fs.existsSync(path.join(app.config.customLogger.bizLogger.file, '..',
+      `another-biz.log.${now.clone().subtract(31, 'days').format('YYYY-MM-DD')}`), 'foo'));
+
     // clean below
     filepath = `foo.log.${now.clone().subtract(32, 'days').format('YYYY-MM-DD')}`;
     assert(fs.existsSync(path.join(logDir, filepath)) === false);
@@ -92,6 +106,12 @@ describe('test/clean_log.test.js', () => {
 
     filepath = `foo.log.${now.clone().subtract(1, 'years').format('YYYY-MM-DD')}`;
     assert(fs.existsSync(path.join(logDir, filepath)) === false);
+
+    assert(fs.existsSync(path.join(app.config.customLogger.bizLogger.file, '..',
+      `biz.log.${now.clone().subtract(1, 'years').format('YYYY-MM-DD')}`)) === false);
+
+    assert(fs.existsSync(path.join(app.config.customLogger.bizLogger.file, '..',
+      `another-biz.log.${now.clone().subtract(1, 'years').format('YYYY-MM-DD')}`), 'foo') === false);
   });
 
   it('should not clean log with invalid date', function* () {

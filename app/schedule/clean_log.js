@@ -13,12 +13,17 @@ module.exports = app => ({
 
   async task() {
     const logger = app.coreLogger;
-    const logDirs = [];
+    const logDirs = new Set();
     for (const key in app.loggers) {
-      if (app.loggers.hasOwnProperty(key)) {
-        const logDir = path.dirname(app.loggers[key].options.file);
-        if (logDirs.indexOf(logDir) === -1) {
-          logDirs.push(logDir);
+      if (!app.loggers.hasOwnProperty(key)) {
+        continue;
+      }
+      const registeredLogger = app.loggers[key];
+      for (const transport of registeredLogger.values()) {
+        const file = transport.options.file;
+        if (file) {
+          const logDir = path.dirname(transport.options.file);
+          logDirs.add(logDir);
         }
       }
     }
@@ -26,7 +31,7 @@ module.exports = app => ({
     const maxDays = app.config.logrotator.maxDays;
     if (maxDays && maxDays > 0) {
       try {
-        const tasks = logDirs.map(logdir => removeExpiredLogFiles(logdir, maxDays, logger));
+        const tasks = Array.from(logDirs, logdir => removeExpiredLogFiles(logdir, maxDays, logger));
         await Promise.all(tasks);
       } catch (err) {
         logger.error(err);
