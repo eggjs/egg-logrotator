@@ -1,4 +1,10 @@
 
+3.0.7 / 2019-03-14
+==================
+
+**fixes**
+  * [[`4c1632b`](http://github.com/eggjs/egg-logrotator/commit/4c1632be11fd527de80acc8bdda22568c5960bd1)] - fix: all rotator should use transport file (#25) (Hongcai Deng <<admin@dhchouse.com>>)
+
 3.0.6 / 2019-03-06
 ==================
 
