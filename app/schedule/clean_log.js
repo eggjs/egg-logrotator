@@ -3,6 +3,7 @@
 const path = require('path');
 const fs = require('mz/fs');
 const moment = require('moment');
+const utils = require('../../utils');
 
 // clean all xxx.log.YYYY-MM-DD beofre expried date.
 module.exports = app => ({
@@ -14,20 +15,11 @@ module.exports = app => ({
   async task() {
     const logger = app.coreLogger;
     const logDirs = new Set();
-    for (const key in app.loggers) {
-      if (!app.loggers.hasOwnProperty(key)) {
-        continue;
-      }
-      const registeredLogger = app.loggers[key];
-      for (const transport of registeredLogger.values()) {
-        const file = transport.options.file;
-        if (file) {
-          const logDir = path.dirname(transport.options.file);
-          logDirs.add(logDir);
-        }
-      }
-    }
-
+    const loggerFiles = utils.walkLoggerFile(app.loggers);
+    loggerFiles.forEach(file => {
+      const logDir = path.dirname(file);
+      logDirs.add(logDir);
+    });
     const maxDays = app.config.logrotator.maxDays;
     if (maxDays && maxDays > 0) {
       try {
