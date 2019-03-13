@@ -5,6 +5,7 @@ const moment = require('moment');
 const fs = require('mz/fs');
 const debug = require('debug')('egg-logrotator:day_rotator');
 const Rotator = require('./rotator');
+const utils = require('../../utils');
 
 
 // rotate log by day
@@ -20,15 +21,10 @@ class DayRotator extends Rotator {
   async getRotateFiles() {
     const files = new Map();
     const loggers = this.app.loggers;
-    for (const key in loggers) {
-      if (loggers.hasOwnProperty(key)) {
-        const logger = loggers[key];
-        this._setFile(logger.options.file, files);
-        if (logger.options.jsonFile) {
-          this._setFile(logger.options.jsonFile, files);
-        }
-      }
-    }
+    const loggerFiles = utils.walkLoggerFile(loggers);
+    loggerFiles.forEach(file => {
+      this._setFile(file, files);
+    });
 
     // Should rotate agent log, because schedule is running under app worker,
     // agent log is the only differece between app worker and agent worker.

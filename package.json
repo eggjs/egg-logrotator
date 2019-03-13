@@ -19,7 +19,8 @@
     "app",
     "config",
     "agent.js",
-    "app.js"
+    "app.js",
+    "utils.js"
   ],
   "dependencies": {
     "debug": "^4.1.0",
