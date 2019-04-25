@@ -66,11 +66,15 @@ If the file you renamed to is exists, it will increment by 1 (`.log.1` -> `.log.
 
 Files in `filesRotateBySize` won't be rotated by day.
 
+If `file` is relative path, then will normalize to `path.join(this.app.config.logger.dir, file)`.
+
 ### By Hour
 
 Rotate by hour with config `filesRotateByHour`. rotate the file at 00 every hour, the format is `.log.YYYY-MM-DD-HH`.
 
 Files in `filesRotateByHour` won't be rotated by day.
+
+If `file` is relative path, then will normalize to `path.join(this.app.config.logger.dir, file)`.
 
 ## Customize
 

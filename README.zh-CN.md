@@ -57,11 +57,15 @@ logrotator 默认在每日0点按照时间切割，会将 app.loggers 下所有�
 
 配置了这个功能的文件不会再按默认切割。
 
+如配置为相对路径，则默认会转换为 `path.join(this.app.config.logger.dir, file)`。
+
 ### 按小时切割
 
 可以配置 `filesRotateBySize` 文件列表按小时切割，每小时0分开始切割，格式为 `.log.YYYY-MM-DD-HH`。
 
 配置了这个功能的文件不会再按默认切割。
+
+如配置为相对路径，则默认会转换为 `path.join(this.app.config.logger.dir, file)`。
 
 ## 自定义
 

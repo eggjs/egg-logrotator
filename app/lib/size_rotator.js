@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('mz/fs');
+const path = require('path');
 const debug = require('debug')('egg-logrotator:size_rotator');
 const Rotator = require('./rotator');
 
@@ -12,10 +13,14 @@ class SizeRotator extends Rotator {
 
   async getRotateFiles() {
     const files = new Map();
+    const logDir = this.app.config.logger.dir;
     const filesRotateBySize = this.app.config.logrotator.filesRotateBySize || [];
     const maxFileSize = this.app.config.logrotator.maxFileSize;
     const maxFiles = this.app.config.logrotator.maxFiles;
-    for (const logPath of filesRotateBySize) {
+    for (let logPath of filesRotateBySize) {
+      // support relative path
+      if (!path.isAbsolute(logPath)) logPath = path.join(logDir, logPath);
+
       const exists = await fs.exists(logPath);
       if (!exists) {
         continue;

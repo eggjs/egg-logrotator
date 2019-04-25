@@ -22,6 +22,10 @@ module.exports = () => {
         file: path.join(__dirname, '../logs', 'mybiz', 'biz.log'),
         consoleLevel: 'NONE',
       },
+      relativeLogger: {
+        file: 'relative.log',
+        consoleLevel: 'NONE',
+      },
       sizeLogger: {
         file: path.join(__dirname, '../logs', 'logrotator', 'size.log'),
       },

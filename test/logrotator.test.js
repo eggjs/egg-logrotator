@@ -56,6 +56,7 @@ describe('test/logrotator.test.js', () => {
       const files = glob.sync(path.join(app.config.logger.dir, '*.log.*'));
       assert(files.length > 4);
       assert(files.filter(name => name.indexOf('foo.log.') > 0));
+      assert(files.filter(name => name.indexOf('relative.log.') > 0));
       files.forEach(file => assert(/log.\d{4}-\d{2}-\d{2}$/.test(file)));
 
       const logDir = app.config.logger.dir;
