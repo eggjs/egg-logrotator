@@ -1,4 +1,10 @@
 
+3.1.0 / 2019-04-25
+==================
+
+**features**
+  * [[`cd39697`](http://github.com/eggjs/egg-logrotator/commit/cd3969726998482df451da01eee759c883bf1552)] - feat: support relative path (#26) (TZ | 天猪 <<atian25@qq.com>>)
+
 3.0.7 / 2019-03-14
 ==================
 
