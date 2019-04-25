@@ -20,9 +20,12 @@ class DayRotator extends Rotator {
 
   async getRotateFiles() {
     const files = new Map();
+    const logDir = this.app.config.logger.dir;
     const loggers = this.app.loggers;
     const loggerFiles = utils.walkLoggerFile(loggers);
     loggerFiles.forEach(file => {
+      // support relative path
+      if (!path.isAbsolute(file)) file = path.join(logDir, file);
       this._setFile(file, files);
     });
 
@@ -30,7 +33,6 @@ class DayRotator extends Rotator {
     // agent log is the only differece between app worker and agent worker.
     // - app worker -> egg-web.log
     // - agent worker -> egg-agent.log
-    const logDir = this.app.config.logger.dir;
     const agentLogName = this.app.config.logger.agentLogName;
     this._setFile(path.join(logDir, agentLogName), files);
 

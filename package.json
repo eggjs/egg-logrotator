@@ -17,10 +17,10 @@
   ],
   "files": [
     "app",
+    "utils.js",
     "config",
     "agent.js",
-    "app.js",
-    "utils.js"
+    "app.js"
   ],
   "dependencies": {
     "debug": "^4.1.0",
