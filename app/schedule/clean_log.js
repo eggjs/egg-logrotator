@@ -41,7 +41,7 @@ async function removeExpiredLogFiles(logdir, maxDays, logger) {
   if (!exists) return;
 
   const files = await fs.readdir(logdir);
-  const expriedDate = moment().subtract(maxDays, 'days').startOf('date');
+  const expiredDate = moment().subtract(maxDays, 'days').startOf('date');
   const names = files.filter(file => {
     const name = path.extname(file).substring(1);
     if (!/^\d{4}\-\d{2}\-\d{2}/.test(name)) {
@@ -51,7 +51,7 @@ async function removeExpiredLogFiles(logdir, maxDays, logger) {
     if (!date.isValid()) {
       return false;
     }
-    return date.isBefore(expriedDate);
+    return date.isBefore(expiredDate);
   });
   if (names.length === 0) {
     return;
