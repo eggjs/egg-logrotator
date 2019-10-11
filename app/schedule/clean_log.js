@@ -5,7 +5,7 @@ const fs = require('mz/fs');
 const moment = require('moment');
 const utils = require('../../utils');
 
-// clean all xxx.log.YYYY-MM-DD beofre expried date.
+// clean all xxx.log.YYYY-MM-DD before expired date.
 module.exports = app => ({
   schedule: {
     type: 'worker', // only one worker run this task
