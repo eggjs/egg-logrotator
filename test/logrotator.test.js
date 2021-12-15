@@ -7,6 +7,7 @@ const fs = require('fs');
 const glob = require('glob');
 const moment = require('moment');
 const assert = require('assert');
+const { createUnzip } = require('zlib');
 
 
 describe('test/logrotator.test.js', () => {
@@ -435,6 +436,34 @@ describe('test/logrotator.test.js', () => {
     });
   });
 
+  describe('gzip logger', () => {
+    let mockfile;
+    let app;
+    const schedule = path.join(__dirname, '../app/schedule/rotate_by_size_gzip');
+    before(() => {
+      app = mm.app({
+        baseDir: 'logrotator-app-size',
+      });
+      return app.ready();
+    });
+    before(() => {
+      mockfile = path.join(app.config.logger.dir, 'egg-web.log');
+    });
+    after(() => app.close());
+    afterEach(mm.restore);
+
+    it('should rotate by size and use zlib.gzip compress', function* () {
+      fs.writeFileSync(mockfile, 'mock log text');
+      yield app.runSchedule(schedule);
+      yield sleep(100);
+      const gzip = createUnzip();
+      fs.createReadStream(`${mockfile}.1`).pipe(gzip);
+      gzip.on('data', data => {
+        assert(data.toString().includes('max size: 1'));
+      });
+    });
+
+  });
 });
 
 function sleep(ms) {
