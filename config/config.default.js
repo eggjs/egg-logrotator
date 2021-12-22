@@ -22,4 +22,6 @@ exports.logrotator = {
   rotateDuration: 60000,
   // for clean_log
   maxDays: 31,
+  // enable gzip
+  gzip: false,
 };

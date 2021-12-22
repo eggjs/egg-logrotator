@@ -35,7 +35,8 @@ class DayRotator extends Rotator {
 
   _setFile(srcPath, files) {
     if (!files.has(srcPath)) {
-      const targetPath = srcPath + moment().subtract(1, 'hours').format(`.YYYY-MM-DD${this.hourDelimiter}HH`);
+      const ext = this.app.config.logrotator.gzip === true ? '.gz' : '';
+      const targetPath = srcPath + moment().subtract(1, 'hours').format(`.YYYY-MM-DD${this.hourDelimiter}HH`) + ext;
       debug('set file %s => %s', srcPath, targetPath);
       files.set(srcPath, { srcPath, targetPath });
     }

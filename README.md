@@ -25,7 +25,7 @@ LogRotator for egg. Rotate all file of `app.loggers` by default
 ## Install
 
 ```bash
-$ npm i egg-logrotator
+npm i egg-logrotator
 ```
 
 ## Usage
@@ -51,6 +51,7 @@ exports.logrotator = {
   maxFiles: 10,                    // pieces rotate by size
   rotateDuration: 60000,           // time interval to judge if any file need rotate
   maxDays: 31,                     // keep max days log files, default is `31`. Set `0` to keep all logs
+  gzip:false,                      // use gzip compress logger on rotate file, default is `false`. Set `true` to enable
 };
 ```
 
