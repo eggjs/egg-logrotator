@@ -28,7 +28,7 @@ class Rotator {
     for (const file of files.values()) {
       try {
         debug('rename from %s to %s', file.srcPath, file.targetPath);
-        await renameOrDelete(file.srcPath, file.targetPath, this.options.gzip);
+        await renameOrDelete(file.srcPath, file.targetPath, this.app.config.logrotator.gzip);
         rotatedFile.push(`${file.srcPath} -> ${file.targetPath}`);
       } catch (err) {
         err.message = `[egg-logrotator] rename ${file.srcPath}, found exception: ` + err.message;
@@ -68,12 +68,15 @@ async function renameOrDelete(srcPath, targetPath, gzip) {
   }
   // if gzip is true, then use gzip
   if (gzip === true) {
+    const tmpPath = `${targetPath}.tmp`;
+    await fs.rename(srcPath, tmpPath);
     await (() => {
       return new Promise((resolve, reject) => {
-        pipeline(createReadStream(srcPath), createGzip(), createWriteStream(targetPath), err => {
+        pipeline(createReadStream(tmpPath), createGzip(), createWriteStream(targetPath), async err => {
           if (err) {
             reject(err);
           } else {
+            await fs.unlink(tmpPath);
             resolve();
           }
         });

@@ -436,13 +436,70 @@ describe('test/logrotator.test.js', () => {
     });
   });
 
-  describe('gzip logger', () => {
-    let mockfile;
+  describe('rotate_by_hour_gzip', () => {
     let app;
-    const schedule = path.join(__dirname, '../app/schedule/rotate_by_size_gzip');
+    const schedule = path.join(__dirname, '../app/schedule/rotate_by_hour');
     before(() => {
       app = mm.app({
-        baseDir: 'logrotator-app-size',
+        baseDir: 'logrotator-app-hour-gzip',
+      });
+      return app.ready();
+    });
+    after(() => app.close());
+    afterEach(mm.restore);
+
+    it('should rotate by size and use zlib.gzip compress', function* () {
+      yield app.runSchedule(schedule);
+      yield sleep(100);
+      const logDir = app.config.logger.dir;
+      const date = moment().subtract(1, 'hours').format('YYYY-MM-DD-HH');
+      const file = path.join(logDir, `egg-web.log.${date}.gz`);
+      assert.equal(fs.existsSync(file), true);
+      const gzip = createUnzip();
+      fs.createReadStream(file).pipe(gzip);
+      gzip.on('data', data => {
+        assert(data.toString().includes('logrotator-app-hour-gzip'));
+      });
+    });
+
+  });
+
+  describe('rotate_by_day_gzip', () => {
+    let app;
+    const schedule = path.join(__dirname, '../app/schedule/rotate_by_file');
+    before(() => {
+      app = mm.app({
+        baseDir: 'logrotator-app-day-gzip',
+      });
+      return app.ready();
+    });
+    after(() => app.close());
+    afterEach(mm.restore);
+
+    it('should rotate by size and use zlib.gzip compress', function* () {
+      yield app.runSchedule(schedule);
+      yield sleep(100);
+      const logDir = app.config.logger.dir;
+      const now = moment().startOf('date');
+      const date = now.clone().subtract(1, 'days').format('YYYY-MM-DD');
+      const file = path.join(logDir, `egg-web.log.${date}.gz`);
+      assert.equal(fs.existsSync(file), true);
+      const gzip = createUnzip();
+      fs.createReadStream(file).pipe(gzip);
+      gzip.on('data', data => {
+        assert(data.toString().includes('logrotator-app-day-gzip'));
+      });
+    });
+
+  });
+
+  describe('rotate_by_size_gzip', () => {
+    let mockfile;
+    let app;
+    const schedule = path.join(__dirname, '../app/schedule/rotate_by_size');
+    before(() => {
+      app = mm.app({
+        baseDir: 'logrotator-app-size-gzip',
       });
       return app.ready();
     });
@@ -452,18 +509,21 @@ describe('test/logrotator.test.js', () => {
     after(() => app.close());
     afterEach(mm.restore);
 
-    it('should rotate by size and use zlib.gzip compress', function* () {
-      fs.writeFileSync(mockfile, 'mock log text');
+    it('should rotate by size', function* () {
       yield app.runSchedule(schedule);
       yield sleep(100);
+      const file = `${mockfile}.1.gz`;
+      assert(fs.existsSync(file));
       const gzip = createUnzip();
-      fs.createReadStream(`${mockfile}.1`).pipe(gzip);
+      fs.createReadStream(file).pipe(gzip);
       gzip.on('data', data => {
-        assert(data.toString().includes('max size: 1'));
+        assert(data.toString().includes('logrotator-app-size-gzip'));
       });
+
     });
 
   });
+
 });
 
 function sleep(ms) {
