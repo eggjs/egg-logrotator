@@ -23,19 +23,16 @@
     "app.js"
   ],
   "dependencies": {
-    "debug": "^4.1.1",
     "moment": "^2.24.0",
     "mz": "^2.7.0"
   },
   "devDependencies": {
-    "autod": "^3.1.0",
     "egg": "^2.0.0",
     "egg-bin": "^4.13.0",
-    "egg-ci": "^1.11.0",
     "egg-logger": "^2.4.1",
     "egg-mock": "^3.22.2",
-    "eslint": "^5.16.0",
-    "eslint-config-egg": "^7.3.1",
+    "eslint": "8",
+    "eslint-config-egg": "12",
     "glob": "^7.1.3",
     "mz-modules": "^2.1.0",
     "pedding": "1"
@@ -45,23 +42,10 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "pkgfiles": "egg-bin pkgfiles",
-    "test": "npm run lint -- --fix && npm run pkgfiles && npm run test-local",
+    "test": "npm run lint -- --fix && npm run test-local",
     "test-local": "egg-bin test",
     "cov": "egg-bin cov",
-    "ci": "npm run lint && npm run pkgfiles -- --check && npm run cov",
-    "autod": "autod"
-  },
-  "ci": {
-    "type": "travis",
-    "os": {
-      "travis": "linux, osx, windows"
-    },
-    "nyc": true,
-    "version": "8, 10",
-    "license": {
-      "year": 2016
-    }
+    "ci": "npm run lint && npm run cov"
   },
   "repository": {
     "type": "git",

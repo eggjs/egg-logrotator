@@ -2,7 +2,7 @@
 
 const assert = require('assert');
 const fs = require('mz/fs');
-const debug = require('debug')('egg-logrotator:rotator');
+const debug = require('util').debuglog('egg-logrotator:rotator');
 
 
 class Rotator {
