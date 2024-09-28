@@ -3,7 +3,7 @@
 const moment = require('moment');
 const fs = require('mz/fs');
 const path = require('path');
-const debug = require('debug')('egg-logrotator:hour_rotator');
+const debug = require('util').debuglog('egg-logrotator:hour_rotator');
 const Rotator = require('./rotator');
 
 
