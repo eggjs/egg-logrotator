@@ -9,7 +9,7 @@ const Rotator = require('./rotator');
 
 // rotate log by hour
 // rename from foo.log to foo.log.YYYY-MM-DD-HH
-class DayRotator extends Rotator {
+class HourRotator extends Rotator {
 
   async getRotateFiles() {
     const files = new Map();
@@ -43,4 +43,4 @@ class DayRotator extends Rotator {
   }
 }
 
-module.exports = DayRotator;
+module.exports = HourRotator;
