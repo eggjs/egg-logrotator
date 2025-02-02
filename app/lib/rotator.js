@@ -5,8 +5,7 @@ const { createWriteStream, createReadStream } = require('fs');
 const fs = require('mz/fs');
 const { pipeline } = require('stream');
 const { createGzip } = require('zlib');
-const debug = require('debug')('egg-logrotator:rotator');
-
+const debug = require('util').debuglog('egg-logrotator:rotator');
 
 class Rotator {
 

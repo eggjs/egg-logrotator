@@ -2,7 +2,7 @@
 
 const fs = require('mz/fs');
 const path = require('path');
-const debug = require('debug')('egg-logrotator:size_rotator');
+const debug = require('util').debuglog('egg-logrotator:size_rotator');
 const Rotator = require('./rotator');
 
 
