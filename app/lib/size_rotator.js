@@ -50,17 +50,18 @@ class SizeRotator extends Rotator {
     if (files.has(logPath)) {
       return;
     }
+    const ext = this.app.config.logrotator.gzip === true ? '.gz' : '';
     // foo.log.2 -> foo.log.3
     // foo.log.1 -> foo.log.2
     for (let i = maxFiles - 1; i >= 1; i--) {
       const srcPath = `${logPath}.${i}`;
-      const targetPath = `${logPath}.${i + 1}`;
+      const targetPath = `${logPath}.${i + 1}${ext}`;
       debug('set file %s => %s', srcPath, targetPath);
       files.set(srcPath, { srcPath, targetPath });
     }
     // foo.log -> foo.log.1
     debug('set file %s => %s', logPath, `${logPath}.1`);
-    files.set(logPath, { srcPath: logPath, targetPath: `${logPath}.1` });
+    files.set(logPath, { srcPath: logPath, targetPath: `${logPath}.1${ext}` });
   }
 
 }
