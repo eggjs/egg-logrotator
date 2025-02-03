@@ -1,5 +1,49 @@
 # Changelog
 
+## [4.0.0](https://github.com/eggjs/logrotator/compare/v3.2.0...v4.0.0) (2025-02-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* drop Node.js < 18.19.0 support
+
+part of https://github.com/eggjs/egg/issues/3644
+
+https://github.com/eggjs/egg/issues/5257
+
+<!-- This is an auto-generated comment: release notes by coderabbit.ai
+-->
+
+## Summary by CodeRabbit
+
+- **New Features**
+- Package renamed to **@eggjs/logrotator** with updated installation
+instructions and documentation.
+- Enhanced log rotation configuration for improved file retention and
+compression.
+
+- **Refactor**
+  - Migrated the codebase to ES Modules with full TypeScript support.
+- Streamlined asynchronous handling in both core functionality and
+tests.
+
+- **Chores**
+- Updated CI workflows to support modern Node.js versions (18, 20, 22).
+  - Refined linting and version control ignore configurations.
+
+<!-- end of auto-generated comment: release notes by coderabbit.ai -->
+
+### Features
+
+* add disableRotateByDay configuration(default:false) ([#28](https://github.com/eggjs/logrotator/issues/28)) ([73690a8](https://github.com/eggjs/logrotator/commit/73690a8d65c8737c24b8c0c7d373f04b120450dd))
+* support cjs and esm both by tshy ([#33](https://github.com/eggjs/logrotator/issues/33)) ([fa42511](https://github.com/eggjs/logrotator/commit/fa42511f48f75e94ce3248bce0ed7d84def0a24f))
+* support gzip compress on rotate file ([#30](https://github.com/eggjs/logrotator/issues/30)) ([059d1c8](https://github.com/eggjs/logrotator/commit/059d1c8c29bcc11f1a387e7a874f477bee6d930f))
+
+
+### Bug Fixes
+
+* rename class name to HourRotator ([#29](https://github.com/eggjs/logrotator/issues/29)) ([3863a39](https://github.com/eggjs/logrotator/commit/3863a39eb5549ce1c122fb9eb4558e8acbb1dae7))
+
 ## [3.2.0](https://github.com/eggjs/egg-logrotator/compare/v3.1.0...v3.2.0) (2024-09-28)
 
 
