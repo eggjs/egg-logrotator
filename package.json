@@ -49,12 +49,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/eggjs/egg-logrotator.git"
+    "url": "git+https://github.com/eggjs/logrotator.git"
   },
   "bugs": {
     "url": "https://github.com/eggjs/egg/issues"
   },
-  "homepage": "https://github.com/eggjs/egg-logrotator#readme",
+  "homepage": "https://github.com/eggjs/logrotator#readme",
   "author": "tianyi.jiangty",
   "license": "MIT"
 }

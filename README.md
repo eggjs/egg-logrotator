@@ -15,7 +15,7 @@ LogRotator for egg. Rotate all file of `app.loggers` by default
 ## Install
 
 ```bash
-npm i egg-logrotator
+npm i egg-logrotator@3
 ```
 
 ## Usage
