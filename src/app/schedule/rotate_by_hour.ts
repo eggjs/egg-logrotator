@@ -1,13 +1,10 @@
-'use strict';
+import { EggCore } from '@eggjs/core';
+import { HourRotator } from '../../lib/hour_rotator.js';
 
-const HourRotator = require('../lib/hour_rotator');
-
-
-module.exports = app => {
+export default (app: EggCore) => {
   const rotator = new HourRotator({ app });
 
   return {
-
     schedule: {
       type: 'worker', // only one worker run this task
       cron: '1 * * * *', // run every hour at 01
