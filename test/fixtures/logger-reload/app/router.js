@@ -1,10 +1,7 @@
-'use strict';
-
-const path = require('path');
-
+const path = require('node:path');
 
 module.exports = app => {
-  app.get('/log', function* () {
+  app.get('/log', async function() {
     this.logger.warn('%s %s', this.method, this.path);
     this.logger.error(new Error('error'));
     this.body = {
@@ -13,9 +10,9 @@ module.exports = app => {
     };
   });
 
-  app.get('/rotate', function* () {
-    const schedule = path.join(__dirname, '../../../../app/schedule/rotate_by_file');
-    yield app.runSchedule(schedule);
+  app.get('/rotate', async function() {
+    const schedule = path.join(__dirname, '../../../../src/app/schedule/rotate_by_file.ts');
+    await app.runSchedule(schedule);
     this.body = 'done';
   });
 };

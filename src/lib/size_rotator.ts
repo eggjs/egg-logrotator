@@ -1,51 +1,52 @@
-'use strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { debuglog } from 'node:util';
+import { exists } from 'utility';
+import { LogRotator, RotateFile } from './rotator.js';
 
-const fs = require('mz/fs');
-const path = require('path');
-const debug = require('util').debuglog('egg-logrotator:size_rotator');
-const Rotator = require('./rotator');
-
+const debug = debuglog('@eggjs/logrotator/lib/size_rotator');
 
 // rotate log by size, if the size of file over maxFileSize,
 // it will rename from foo.log to foo.log.1
 // if foo.log.1 exists, foo.log.1 will rename to foo.log.2
-class SizeRotator extends Rotator {
-
+export class SizeRotator extends LogRotator {
   async getRotateFiles() {
-    const files = new Map();
+    const files = new Map<string, RotateFile>();
     const logDir = this.app.config.logger.dir;
     const filesRotateBySize = this.app.config.logrotator.filesRotateBySize || [];
     const maxFileSize = this.app.config.logrotator.maxFileSize;
     const maxFiles = this.app.config.logrotator.maxFiles;
     for (let logPath of filesRotateBySize) {
       // support relative path
-      if (!path.isAbsolute(logPath)) logPath = path.join(logDir, logPath);
-
-      const exists = await fs.exists(logPath);
-      if (!exists) {
+      if (!path.isAbsolute(logPath)) {
+        logPath = path.join(logDir, logPath);
+      }
+      const stat = await exists(logPath);
+      if (!stat) {
         continue;
       }
+      const size = stat.size;
       try {
-        const stat = await fs.stat(logPath);
-        if (stat.size >= maxFileSize) {
-          this.logger.info(`[egg-logrotator] file ${logPath} reach the maximum file size, current size: ${stat.size}, max size: ${maxFileSize}`);
+        if (size >= maxFileSize) {
+          this.logger.info(`[@eggjs/logrotator] file ${logPath} reach the maximum file size, current size: ${size}, max size: ${maxFileSize}`);
           // delete max log file if exists, otherwise will throw when rename
           const maxFileName = `${logPath}.${maxFiles}`;
-          const maxExists = await fs.exists(maxFileName);
-          if (maxExists) {
+          const stat = await exists(maxFileName);
+          if (stat) {
             await fs.unlink(maxFileName);
+            this.logger.info(`[@eggjs/logrotator] delete max log file ${maxFileName}`);
           }
           this._setFile(logPath, files);
         }
-      } catch (err) {
-        err.message = '[egg-logrotator] ' + err.message;
+      } catch (err: any) {
+        err.message = '[@eggjs/logrotator] ' + err.message;
         this.logger.error(err);
       }
     }
     return files;
   }
 
-  _setFile(logPath, files) {
+  _setFile(logPath: string, files: Map<string, RotateFile>) {
     const maxFiles = this.app.config.logrotator.maxFiles;
     if (files.has(logPath)) {
       return;
@@ -63,7 +64,4 @@ class SizeRotator extends Rotator {
     debug('set file %s => %s', logPath, `${logPath}.1`);
     files.set(logPath, { srcPath: logPath, targetPath: `${logPath}.1${ext}` });
   }
-
 }
-
-module.exports = SizeRotator;

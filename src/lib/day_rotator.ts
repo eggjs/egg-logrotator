@@ -1,36 +1,40 @@
-'use strict';
+import path from 'node:path';
+import moment from 'moment';
+import fs from 'node:fs/promises';
+import { debuglog } from 'node:util';
+import { exists } from 'utility';
+import { LogRotator, RotateFile, RotatorOptions } from './rotator.js';
+import { walkLoggerFile } from './utils.js';
 
-const path = require('path');
-const moment = require('moment');
-const fs = require('mz/fs');
-const debug = require('util').debuglog('egg-logrotator:day_rotator');
-const Rotator = require('./rotator');
-const utils = require('../../utils');
-
+const debug = debuglog('@eggjs/logrotator/lib/day_rotator');
 
 // rotate log by day
 // rename from foo.log to foo.log.YYYY-MM-DD
-class DayRotator extends Rotator {
+export class DayRotator extends LogRotator {
+  private filesRotateBySize: string[];
+  private filesRotateByHour: string[];
 
-  constructor(options) {
+  constructor(options: RotatorOptions) {
     super(options);
     this.filesRotateBySize = this.app.config.logrotator.filesRotateBySize || [];
     this.filesRotateByHour = this.app.config.logrotator.filesRotateByHour || [];
   }
 
   async getRotateFiles() {
-    const files = new Map();
+    const files = new Map<string, RotateFile>();
     const logDir = this.app.config.logger.dir;
     const loggers = this.app.loggers;
-    const loggerFiles = utils.walkLoggerFile(loggers);
+    const loggerFiles = walkLoggerFile(loggers);
     loggerFiles.forEach(file => {
       // support relative path
-      if (!path.isAbsolute(file)) file = path.join(logDir, file);
+      if (!path.isAbsolute(file)) {
+        file = path.join(logDir, file);
+      }
       this._setFile(file, files);
     });
 
     // Should rotate agent log, because schedule is running under app worker,
-    // agent log is the only differece between app worker and agent worker.
+    // agent log is the only difference between app worker and agent worker.
     // - app worker -> egg-web.log
     // - agent worker -> egg-agent.log
     const agentLogName = this.app.config.logger.agentLogName;
@@ -42,8 +46,8 @@ class DayRotator extends Rotator {
       this.app.deprecate('[egg-logrotator] Do not use app.config.logger.rotateLogDirs, only rotate core loggers and custom loggers');
 
       for (const dir of rotateLogDirs) {
-        const exists = await fs.exists(dir);
-        if (!exists) continue;
+        const stat = await exists(dir);
+        if (!stat) continue;
 
         try {
           const names = await fs.readdir(dir);
@@ -62,7 +66,7 @@ class DayRotator extends Rotator {
     return files;
   }
 
-  _setFile(srcPath, files) {
+  _setFile(srcPath: string, files: Map<string, RotateFile>) {
     // don't rotate logPath in filesRotateBySize
     if (this.filesRotateBySize.indexOf(srcPath) > -1) {
       return;
@@ -85,5 +89,3 @@ class DayRotator extends Rotator {
     }
   }
 }
-
-module.exports = DayRotator;

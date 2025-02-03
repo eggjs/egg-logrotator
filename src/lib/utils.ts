@@ -1,7 +1,15 @@
-'use strict';
+interface LoggerTransport {
+  options: {
+    file: string;
+  };
+}
 
-function walkLoggerFile(loggers) {
-  const files = [];
+/**
+ * Walk all logger files from loggers
+ * @param loggers - The loggers to walk
+ */
+export function walkLoggerFile(loggers: Record<string, Map<string, LoggerTransport>>) {
+  const files: string[] = [];
   for (const key in loggers) {
     if (!loggers.hasOwnProperty(key)) {
       continue;
@@ -16,5 +24,3 @@ function walkLoggerFile(loggers) {
   }
   return files;
 }
-
-exports.walkLoggerFile = walkLoggerFile;

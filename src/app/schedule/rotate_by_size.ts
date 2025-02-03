@@ -1,13 +1,10 @@
-'use strict';
+import { EggCore } from '@eggjs/core';
+import { SizeRotator } from '../../lib/size_rotator.js';
 
-const SizeRotator = require('../lib/size_rotator');
-
-
-module.exports = app => {
+export default (app: EggCore) => {
   const rotator = new SizeRotator({ app });
 
   return {
-
     schedule: {
       type: 'worker',
       interval: app.config.logrotator.rotateDuration,

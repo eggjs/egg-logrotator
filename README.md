@@ -1,21 +1,24 @@
-# egg-logrotator
+# @eggjs/logrotator
 
 [![NPM version][npm-image]][npm-url]
-[![CI](https://github.com/eggjs/egg-logrotator/actions/workflows/nodejs.yml/badge.svg)](https://github.com/eggjs/egg-logrotator/actions/workflows/nodejs.yml)
-[![Test coverage](https://img.shields.io/codecov/c/github/eggjs/egg-logrotator.svg?style=flat-square)](https://codecov.io/gh/eggjs/egg-logrotator)
+[![CI](https://github.com/eggjs/logrotator/actions/workflows/nodejs.yml/badge.svg)](https://github.com/eggjs/logrotator/actions/workflows/nodejs.yml)
+[![Test coverage](https://img.shields.io/codecov/c/github/eggjs/logrotator.svg?style=flat-square)](https://codecov.io/gh/eggjs/logrotator)
 [![npm download][download-image]][download-url]
+[![Node.js Version](https://img.shields.io/node/v/@eggjs/logrotator.svg?style=flat)](https://nodejs.org/en/download/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/eggjs/security)
 
-[npm-image]: https://img.shields.io/npm/v/egg-logrotator.svg?style=flat-square
-[npm-url]: https://npmjs.org/package/egg-logrotator
-[download-image]: https://img.shields.io/npm/dm/egg-logrotator.svg?style=flat-square
-[download-url]: https://npmjs.org/package/egg-logrotator
+[npm-image]: https://img.shields.io/npm/v/@eggjs/logrotator.svg?style=flat-square
+[npm-url]: https://npmjs.org/package/@eggjs/logrotator
+[download-image]: https://img.shields.io/npm/dm/@eggjs/logrotator.svg?style=flat-square
+[download-url]: https://npmjs.org/package/@eggjs/logrotator
 
 LogRotator for egg. Rotate all file of `app.loggers` by default
 
 ## Install
 
 ```bash
-npm i egg-logrotator
+npm i @eggjs/logrotator
 ```
 
 ## Usage
@@ -25,7 +28,7 @@ npm i egg-logrotator
 ```js
 exports.logrotator = {
   enable: true,
-  package: 'egg-logrotator',
+  package: '@eggjs/logrotator',
 };
 ```
 
@@ -111,10 +114,10 @@ Please open an issue [here](https://github.com/eggjs/egg/issues).
 
 ## License
 
-[MIT](https://github.com/eggjs/egg-logrotator/blob/master/LICENSE)
+[MIT](LICENSE)
 
 ## Contributors
 
-[![Contributors](https://contrib.rocks/image?repo=eggjs/egg-logrotator)](https://github.com/eggjs/egg-logrotator/graphs/contributors)
+[![Contributors](https://contrib.rocks/image?repo=eggjs/logrotator)](https://github.com/eggjs/logrotator/graphs/contributors)
 
 Made with [contributors-img](https://contrib.rocks).

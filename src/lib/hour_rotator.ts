@@ -1,26 +1,26 @@
-'use strict';
+import moment from 'moment';
+import path from 'node:path';
+import { debuglog } from 'node:util';
+import { exists } from 'utility';
+import { LogRotator, RotateFile } from './rotator.js';
 
-const moment = require('moment');
-const fs = require('mz/fs');
-const path = require('path');
-const debug = require('util').debuglog('egg-logrotator:hour_rotator');
-const Rotator = require('./rotator');
-
+const debug = debuglog('@eggjs/logrotator/lib/hour_rotator');
 
 // rotate log by hour
 // rename from foo.log to foo.log.YYYY-MM-DD-HH
-class HourRotator extends Rotator {
-
+export class HourRotator extends LogRotator {
   async getRotateFiles() {
-    const files = new Map();
+    const files = new Map<string, RotateFile>();
     const logDir = this.app.config.logger.dir;
     const filesRotateByHour = this.app.config.logrotator.filesRotateByHour || [];
 
     for (let logPath of filesRotateByHour) {
       // support relative path
-      if (!path.isAbsolute(logPath)) logPath = path.join(logDir, logPath);
-      const exists = await fs.exists(logPath);
-      if (!exists) {
+      if (!path.isAbsolute(logPath)) {
+        logPath = path.join(logDir, logPath);
+      }
+      const stat = await exists(logPath);
+      if (!stat) {
         continue;
       }
       this._setFile(logPath, files);
@@ -33,7 +33,7 @@ class HourRotator extends Rotator {
     return this.app.config.logrotator.hourDelimiter;
   }
 
-  _setFile(srcPath, files) {
+  _setFile(srcPath: string, files: Map<string, RotateFile>) {
     if (!files.has(srcPath)) {
       const ext = this.app.config.logrotator.gzip === true ? '.gz' : '';
       const targetPath = srcPath + moment().subtract(1, 'hours').format(`.YYYY-MM-DD${this.hourDelimiter}HH`) + ext;
@@ -42,5 +42,3 @@ class HourRotator extends Rotator {
     }
   }
 }
-
-module.exports = HourRotator;
